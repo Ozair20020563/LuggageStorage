@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Luggage Storage - Freedom to Explore</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">YourLogo</div>
+            <ul class="nav-links">
+                <li><a href="#how-it-works">How it works</a></li>
+                <li><a href="#locations">Locations</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="#" class="btn btn-outline">Sign in</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section (like Bounce's homepage) -->
+    <section class="hero">
+        <div class="container">
+            <h1>Luggage storage near you</h1>
+            <p class="subhead">Freedom to explore from $5.00/day</p>
+            
+            <!-- Search Bar -->
+            <div class="search-box">
+                <input type="text" placeholder="Search place or address" id="location-search">
+                <button class="btn btn-primary" onclick="searchLocations()">Search</button>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number">100+</span>
+                    <span class="stat-label">locations</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">10K+</span>
+                    <span class="stat-label">bags stored</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4.9</span>
+                    <span class="stat-label">rating (500+ reviews)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works (3 steps) -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2>How it works?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">📱</div>
+                    <h3>Book storage online</h3>
+                    <p>Choose a convenient location and save your spot by booking online.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">📍</div>
+                    <h3>Go to the storage spot</h3>
+                    <p>Follow the directions and drop off your bags.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">✅</div>
+                    <h3>Show your QR code</h3>
+                    <p>Use your booking confirmation to drop off and pick up.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="reviews">
+        <div class="container">
+            <h2>Trusted by travelers</h2>
+            <div class="review-grid">
+                <!-- Review cards will go here -->
+                <div class="review-card">
+                    <p>"Very convenient solution to leave your luggages for the whole day."</p>
+                    <div class="reviewer">- Sarah J.</div>
+                </div>
+                <div class="review-card">
+                    <p>"Easy to use, smooth flow. All you need is showing the QR code."</p>
+                    <div class="reviewer">- Michael T.</div>
+                </div>
+                <div class="review-card">
+                    <p>"Friendly staff and great service. Highly recommended!"</p>
+                    <div class="reviewer">- David L.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Preview -->
+    <section class="faq-preview">
+        <div class="container">
+            <h2>Common questions</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <h4>How does luggage storage work?</h4>
+                    <p>Book online, drop off your bags at the location, and pick up when you're ready.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Are there size limits?</h4>
+                    <p>No size limits! We accept all luggage, including large suitcases and backpacks.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I cancel and get a refund?</h4>
+                    <p>Yes! Free cancellation up to 24 hours before your booking.</p>
+                </div>
+            </div>
+            <a href="faq.html" class="btn btn-link">View all FAQs →</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Your Luggage Storage. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
