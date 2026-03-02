@@ -3,125 +3,401 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Luggage Storage - Freedom to Explore</title>
+    <title>Luggage Storage - Freedom to Explore | Your City</title>
+    <meta name="description" content="Secure luggage storage near you. Book online, drop off your bags, and explore hands-free. From $5/day with free cancellation.">
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
-            <div class="logo">YourLogo</div>
-            <ul class="nav-links">
+            <a href="/" class="logo">
+                <i class="fas fa-suitcase"></i>
+                <span>LuggageVault</span>
+            </a>
+            
+            <div class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#how-it-works">How it works</a></li>
                 <li><a href="#locations">Locations</a></li>
+                <li><a href="#reviews">Reviews</a></li>
                 <li><a href="faq.html">FAQ</a></li>
+                <li><a href="#earn" class="nav-highlight">Earn 10% back</a></li>
                 <li><a href="#" class="btn btn-outline">Sign in</a></li>
+                <li><a href="#" class="btn btn-primary">Become a partner</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero Section (like Bounce's homepage) -->
+    <!-- Hero Section with Search -->
     <section class="hero">
         <div class="container">
-            <h1>Luggage storage near you</h1>
-            <p class="subhead">Freedom to explore from $5.00/day</p>
-            
-            <!-- Search Bar -->
-            <div class="search-box">
-                <input type="text" placeholder="Search place or address" id="location-search">
-                <button class="btn btn-primary" onclick="searchLocations()">Search</button>
+            <div class="hero-badge">
+                <i class="fas fa-gift"></i>
+                Book in the app, earn 10% back
             </div>
-
-            <!-- Trust Badges -->
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="stat-number">100+</span>
-                    <span class="stat-label">locations</span>
+            
+            <h1>Luggage storage <span class="highlight">near you</span></h1>
+            <p class="hero-subtitle">Freedom to explore from <strong>$5.00 / day</strong></p>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" placeholder="Search place or address" id="location-search">
+                    <button class="btn btn-primary btn-large" onclick="searchLocations()">
+                        Search
+                    </button>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-number">10K+</span>
-                    <span class="stat-label">bags stored</span>
+            </div>
+            
+            <div class="trust-badges">
+                <div class="trust-item">
+                    <i class="fas fa-store"></i>
+                    <span>32,000+ locations</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-number">4.9</span>
-                    <span class="stat-label">rating (500+ reviews)</span>
+                <div class="trust-item">
+                    <i class="fas fa-bag-shopping"></i>
+                    <span>10M+ bags stored</span>
+                </div>
+                <div class="trust-item">
+                    <i class="fas fa-star"></i>
+                    <span>4.9 rating (1.4M+ reviews)</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- How It Works (3 steps) -->
+    <!-- Featured Cities -->
+    <section class="featured-cities">
+        <div class="container">
+            <h2>Trusted by travelers in <span class="city-typing"></span></h2>
+            <div class="city-grid">
+                <div class="city-card">
+                    <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=200" alt="New York">
+                    <span>New York</span>
+                </div>
+                <div class="city-card">
+                    <img src="https://images.unsplash.com/photo-1522083165195-3424ed129620?w=200" alt="London">
+                    <span>London</span>
+                </div>
+                <div class="city-card">
+                    <img src="https://images.unsplash.com/photo-1518391846015-5589a441c89a?w=200" alt="Tokyo">
+                    <span>Tokyo</span>
+                </div>
+                <div class="city-card">
+                    <img src="https://images.unsplash.com/photo-1547448526-5e9d57fa28f7?w=200" alt="Paris">
+                    <span>Paris</span>
+                </div>
+                <div class="city-card">
+                    <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=200" alt="Hong Kong">
+                    <span>Hong Kong</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Carousel -->
+    <section id="reviews" class="reviews-section">
+        <div class="container">
+            <h2>What travelers say</h2>
+            <div class="rating-summary">
+                <div class="rating-large">4.9</div>
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+                <div class="rating-count">Based on 1.4M+ reviews</div>
+            </div>
+            
+            <div class="reviews-carousel" id="reviewsCarousel">
+                <!-- Reviews will be loaded here via JavaScript -->
+            </div>
+            
+            <div class="carousel-controls">
+                <button class="carousel-btn prev-btn" onclick="moveCarousel(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="carousel-btn next-btn" onclick="moveCarousel(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works - Enhanced -->
     <section id="how-it-works" class="how-it-works">
         <div class="container">
             <h2>How it works?</h2>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-icon">📱</div>
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
                     <h3>Book storage online</h3>
-                    <p>Choose a convenient location and save your spot by booking online.</p>
+                    <p>Choose a convenient locker or local shop, and save your spot by booking online. Business hours and price vary by location.</p>
+                    <div class="step-badge">2 min drop off</div>
                 </div>
-                <div class="step">
-                    <div class="step-icon">📍</div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-location-dot"></i>
+                    </div>
                     <h3>Go to the storage spot</h3>
-                    <p>Follow the directions and drop off your bags.</p>
+                    <p>Follow the directions to the locker or local shop and drop off your bags.</p>
+                    <div class="step-badge">1 min drop off</div>
                 </div>
-                <div class="step">
-                    <div class="step-icon">✅</div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
                     <h3>Show your QR code</h3>
-                    <p>Use your booking confirmation to drop off and pick up.</p>
+                    <p>Use your booking confirmation to drop off. Your bags will be checked in and stored securely.</p>
+                    <div class="step-badge">Booking confirmed</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Reviews Section -->
-    <section class="reviews">
+    <!-- App Promotion Section -->
+    <section class="app-promo">
         <div class="container">
-            <h2>Trusted by travelers</h2>
-            <div class="review-grid">
-                <!-- Review cards will go here -->
-                <div class="review-card">
-                    <p>"Very convenient solution to leave your luggages for the whole day."</p>
-                    <div class="reviewer">- Sarah J.</div>
+            <div class="app-content">
+                <span class="rating-badge">Rated 4.9/5</span>
+                <h2>Get the app to unlock rewards</h2>
+                <p>Book with the app and earn 10% back in credits. Every booking unlocks more credits for your next trip.</p>
+                
+                <div class="app-buttons">
+                    <a href="#" class="app-store-btn">
+                        <i class="fab fa-apple"></i>
+                        <div class="btn-text">
+                            <span>Download on the</span>
+                            <strong>App Store</strong>
+                        </div>
+                    </a>
+                    <a href="#" class="play-store-btn">
+                        <i class="fab fa-google-play"></i>
+                        <div class="btn-text">
+                            <span>Get it on</span>
+                            <strong>Google Play</strong>
+                        </div>
+                    </a>
                 </div>
-                <div class="review-card">
-                    <p>"Easy to use, smooth flow. All you need is showing the QR code."</p>
-                    <div class="reviewer">- Michael T.</div>
+            </div>
+            <div class="qr-code">
+                <div class="qr-placeholder">
+                    <i class="fas fa-qrcode"></i>
                 </div>
-                <div class="review-card">
-                    <p>"Friendly staff and great service. Highly recommended!"</p>
-                    <div class="reviewer">- David L.</div>
+                <p>Scan to download</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Features -->
+    <section class="trust-features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature">
+                    <i class="fas fa-store-alt"></i>
+                    <h4>32,000+ trusted spots</h4>
+                    <p>Across 4,000+ cities worldwide</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>$10,000 protection</h4>
+                    <p>Every booking is protected</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-clock"></i>
+                    <h4>24/7 support</h4>
+                    <p>We're here to help anytime</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-ban"></i>
+                    <h4>Free cancellation</h4>
+                    <p>Cancel anytime before drop-off</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FAQ Preview -->
-    <section class="faq-preview">
+    <!-- Comparison Table -->
+    <section class="comparison-section">
         <div class="container">
-            <h2>Common questions</h2>
-            <div class="faq-list">
+            <h2>Compare your bag storage options</h2>
+            <p class="section-subtitle">Why LuggageVault gives you more flexibility and protection</p>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="highlight-col">LuggageVault</th>
+                            <th>Other platforms</th>
+                            <th>Airport/Train station</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Access & Coverage</td>
+                            <td class="highlight-col">24/7 locations, 32,000+ locations</td>
+                            <td>Limited coverage</td>
+                            <td>Only in airports/stations</td>
+                        </tr>
+                        <tr>
+                            <td>Booking & Flexibility</td>
+                            <td class="highlight-col">Free cancellation, no size limits</td>
+                            <td>Limited cancellation</td>
+                            <td>First come first serve</td>
+                        </tr>
+                        <tr>
+                            <td>Protection</td>
+                            <td class="highlight-col">24/7 support, up to $10,000 protection</td>
+                            <td>Limited protection</td>
+                            <td>Often lacking protection</td>
+                        </tr>
+                        <tr>
+                            <td>Value for money</td>
+                            <td class="highlight-col">From $5/day, no extra charges</td>
+                            <td>Price varies</td>
+                            <td>Higher prices</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <h2>Frequently asked questions</h2>
+            <div class="faq-grid">
                 <div class="faq-item">
-                    <h4>How does luggage storage work?</h4>
-                    <p>Book online, drop off your bags at the location, and pick up when you're ready.</p>
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h4>How does luggage storage work?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We have locations around the world who have secure spaces to store luggage. Just tell us how many bags and when you need storage, and we'll show you convenient places to keep your stuff safe while you explore.</p>
+                    </div>
                 </div>
+                
                 <div class="faq-item">
-                    <h4>Are there size limits?</h4>
-                    <p>No size limits! We accept all luggage, including large suitcases and backpacks.</p>
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h4>What can I store?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Luggage, backpacks, gym bags, surfboards, skis, bicycles - no size limits!</p>
+                    </div>
                 </div>
+                
                 <div class="faq-item">
-                    <h4>Can I cancel and get a refund?</h4>
-                    <p>Yes! Free cancellation up to 24 hours before your booking.</p>
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h4>Are small bags less expensive?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! We don't charge as much when you store smaller bags like purses, tote bags or briefcases.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h4>Can I cancel and get a refund?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! Cancel anytime before drop-off for a full refund. No cancellation fees.</p>
+                    </div>
                 </div>
             </div>
-            <a href="faq.html" class="btn btn-link">View all FAQs →</a>
+            <div class="faq-footer">
+                <a href="faq.html" class="btn btn-link">View all FAQs <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="container">
+            <h2>Love discounts and traveling?</h2>
+            <p>Sign up for our newsletter to get insider travel tips delivered straight to your inbox.</p>
+            <form class="newsletter-form" onsubmit="event.preventDefault(); subscribeNewsletter()">
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+            <p class="form-note">No spam here, just the good stuff.</p>
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2024 Your Luggage Storage. All rights reserved.</p>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <i class="fas fa-suitcase"></i>
+                        <span>LuggageVault</span>
+                    </div>
+                    <p>Freedom to explore without your bags.</p>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help center</a></li>
+                        <li><a href="#">Safety</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Become a partner</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Follow us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 LuggageVault. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Cookies</a>
+                </div>
+            </div>
         </div>
     </footer>
 
