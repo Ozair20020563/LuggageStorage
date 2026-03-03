@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Luggage Storage Near You - Interactive Map</title>
+    
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+    
+    <style>
+        .map-page {
+            padding: 100px 0 60px;
+        }
+        
+        .map-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .location-sidebar {
+            background: white;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #e2e8f0;
+        }
+        
+        .location-filters {
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .location-list-item {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .location-list-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .location-list-item.selected {
+            background: #f0f9ff;
+            border-color: var(--primary);
+        }
+        
+        .list-item-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .list-item-address {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .list-item-price {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .list-item-distance {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .list-item-hours {
+            font-size: 12px;
+            padding: 3px 8px;
+            background: #e2e8f0;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        
+        #mapView {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .info-window {
+            padding: 10px;
+            max-width: 200px;
+        }
+        
+        .info-window h4 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .info-window p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .book-now-btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation (same as before) -->
+    
+    <section class="map-page">
+        <div class="container">
+            <div class="map-container">
+                <!-- Left Sidebar -->
+                <div class="location-sidebar">
+                    <h3>Storage Locations</h3>
+                    
+                    <div class="location-filters">
+                        <button class="filter-btn active" onclick="filterLocations('all')">All</button>
+                        <button class="filter-btn" onclick="filterLocations('24h')">24/7</button>
+                        <button class="filter-btn" onclick="filterLocations('under10')">Under $10</button>
+                        <button class="filter-btn" onclick="filterLocations('nearby')">Nearby</button>
+                    </div>
+                    
+                    <div class="search-box" style="margin-bottom: 20px;">
+                        <input type="text" placeholder="Search locations..." id="locationSearchInput" onkeyup="filterLocationsBySearch()">
+                    </div>
+                    
+                    <div id="locationsList" class="locations-list">
+                        <!-- Locations will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Google Map -->
+                <div id="mapView"></div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        // Sample locations data (you can replace with your actual locations)
+        const storageLocations = [
+            {
+                id: 1,
+                name: "Central Station Storage",
+                address: "123 Main Street, Downtown",
+                lat: 40.7128,
+                lng: -74.0060,
+                price: 7,
+                hours: "24/7",
+                phone: "+1 234-567-8900",
+                rating: 4.8,
+                reviews: 234
+            },
+            {
+                id: 2,
+                name: "City Mall Luggage",
+                address: "456 Market Street, Shopping District",
+                lat: 40.7580,
+                lng: -73.9855,
+                price: 8,
+                hours: "8:00 - 22:00",
+                phone: "+1 234-567-8901",
+                rating: 4.6,
+                reviews: 156
+            },
+            {
+                id: 3,
+                name: "Grand Hotel Storage",
+                address: "789 Park Avenue, Midtown",
+                lat: 40.7614,
+                lng: -73.9776,
+                price: 9,
+                hours: "24/7",
+                phone: "+1 234-567-8902",
+                rating: 4.9,
+                reviews: 412
+            },
+            {
+                id: 4,
+                name: "Tourist Info Center",
+                address: "321 Broadway, Financial District",
+                lat: 40.7061,
+                lng: -74.0088,
+                price: 6,
+                hours: "9:00 - 18:00",
+                phone: "+1 234-567-8903",
+                rating: 4.7,
+                reviews: 89
+            }
+        ];
+        
+        let map;
+        let markers = [];
+        let infoWindow;
+        
+        // Initialize map
+        function initMap() {
+            // Default center (New York City)
+            const defaultCenter = { lat: 40.7128, lng: -74.0060 };
+            
+            map = new google.maps.Map(document.getElementById('mapView'), {
+                zoom: 13,
+                center: defaultCenter,
+                styles: [
+                    {
+                        featureType: "poi.business",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    }
+                ]
+            });
+            
+            infoWindow = new google.maps.InfoWindow();
+            
+            // Add markers for all locations
+            addMarkers(storageLocations);
+            
+            // Populate locations list
+            displayLocationsList(storageLocations);
+        }
+        
+        // Add markers to map
+        function addMarkers(locations) {
+            // Clear existing markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            locations.forEach(location => {
+                const marker = new google.maps.Marker({
+                    position: { lat: location.lat, lng: location.lng },
+                    map: map,
+                    title: location.name,
+                    animation: google.maps.Animation.DROP,
+                    icon: {
+                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                    }
+                });
+                
+                // Add click listener to marker
+                marker.addListener('click', () => {
+                    showInfoWindow(marker, location);
+                });
+                
+                markers.push(marker);
+            });
+        }
+        
+        // Show info window for location
+        function showInfoWindow(marker, location) {
+            const content = `
+                <div class="info-window">
+                    <h4>${location.name}</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> ${location.address}</p>
+                    <p><i class="fas fa-clock"></i> ${location.hours}</p>
+                    <p><i class="fas fa-tag"></i> $${location.price}/day</p>
+                    <p><i class="fas fa-star"></i> ${location.rating} (${location.reviews} reviews)</p>
+                    <a href="booking.html?location=${location.id}" class="book-now-btn">Book Now</a>
+                </div>
+            `;
+            
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+        }
+        
+        // Display locations in sidebar
+        function displayLocationsList(locations) {
+            const list = document.getElementById('locationsList');
+            list.innerHTML = '';
+            
+            locations.forEach(location => {
+                const item = document.createElement('div');
+                item.className = 'location-list-item';
+                item.onclick = () => selectLocation(location);
+                item.innerHTML = `
+                    <div class="list-item-name">${location.name}</div>
+                    <div class="list-item-address">${location.address}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="list-item-price">$${location.price}/day</span>
+                        <span class="list-item-hours">${location.hours}</span>
+                    </div>
+                    <div class="list-item-distance">
+                        <i class="fas fa-star" style="color: #ffd700;"></i> ${location.rating} (${location.reviews} reviews)
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        // Select location and center map
+        function selectLocation(location) {
+            // Remove selected class from all items
+            document.querySelectorAll('.location-list-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked item
+            event.currentTarget.classList.add('selected');
+            
+            // Center map on location
+            map.setCenter({ lat: location.lat, lng: location.lng });
+            map.setZoom(15);
+            
+            // Find and animate the corresponding marker
+            const marker = markers.find(m => m.getTitle() === location.name);
+            if (marker) {
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+                setTimeout(() => marker.setAnimation(null), 1500);
+                showInfoWindow(marker, location);
+            }
+        }
+        
+        // Filter locations
+        function filterLocations(filter) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            let filtered = storageLocations;
+            
+            switch(filter) {
+                case '24h':
+                    filtered = storageLocations.filter(loc => loc.hours === '24/7');
+                    break;
+                case 'under10':
+                    filtered = storageLocations.filter(loc => loc.price < 10);
+                    break;
+                case 'nearby':
+                    // Get user location and filter
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(position => {
+                            const userLat = position.coords.latitude;
+                            const userLng = position.coords.longitude;
+                            
+                            // Calculate distances and sort
+                            filtered = storageLocations.map(loc => ({
+                                ...loc,
+                                distance: calculateDistance(userLat, userLng, loc.lat, loc.lng)
+                            })).sort((a, b) => a.distance - b.distance);
+                            
+                            displayLocationsList(filtered);
+                            addMarkers(filtered);
+                        });
+                        return;
+                    }
+                    break;
+            }
+            
+            displayLocationsList(filtered);
+            addMarkers(filtered);
+        }
+        
+        // Calculate distance between two points
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the earth in km
+            const dLat = deg2rad(lat2 - lat1);
+            const dLon = deg2rad(lon2 - lon1);
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c; // Distance in km
+            return distance;
+        }
+        
+        function deg2rad(deg) {
+            return deg * (Math.PI/180);
+        }
+        
+        // Filter locations by search
+        function filterLocationsBySearch() {
+            const searchTerm = document.getElementById('locationSearchInput').value.toLowerCase();
+            
+            const filtered = storageLocations.filter(loc => 
+                loc.name.toLowerCase().includes(searchTerm) || 
+                loc.address.toLowerCase().includes(searchTerm)
+            );
+            
+            displayLocationsList(filtered);
+            addMarkers(filtered);
+        }
+        
+        // Load map when page is ready
+        window.onload = initMap;
+    </script>
+</body>
+</html>
