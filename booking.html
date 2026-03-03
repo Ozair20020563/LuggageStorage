@@ -499,12 +499,17 @@
         let pricePerDay = 7;
         
         // Sample locations data
-        const locations = [
-            { id: 1, name: "Central Station", address: "123 Main St", price: 7, hours: "24/7", lat: 40.7128, lng: -74.0060 },
-            { id: 2, name: "City Center Mall", address: "456 Market St", price: 8, hours: "8am-10pm", lat: 40.7580, lng: -73.9855 },
-            { id: 3, name: "Grand Hotel", address: "789 Park Ave", price: 9, hours: "24/7", lat: 40.7614, lng: -73.9776 },
-            { id: 4, name: "Tourist Information", address: "321 Broadway", price: 6, hours: "9am-6pm", lat: 40.7061, lng: -74.0088 }
-        ];
+        // In booking.html, replace the locations array
+const locations = [
+    {
+        id: 1,
+        name: "Luggage Storage Sydney CBD",
+        address: "69-75 King St, Sydney NSW 2000",
+        price: 7,
+        hours: "24/7",
+        rating: 5.0
+    }
+];
         
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Luggage Storage Near You - Interactive Map</title>
+    <title>Luggage Storage Sydney CBD - Secure & Affordable | Your Business Name</title>
+    <meta name="description" content="Secure luggage storage in Sydney CBD at 69-75 King St. Book online, drop off your bags, and explore hands-free. From $7/day with free cancellation.">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -309,56 +310,21 @@
 
     <script>
         // Sample locations data with real coordinates
-        const storageLocations = [
-            {
-                id: 1,
-                name: "Downtown Storage Hub",
-                address: "123 Main Street, Downtown",
-                lat: 40.7128,
-                lng: -74.0060,
-                price: 7,
-                hours: "24/7",
-                phone: "+1 212-555-0123",
-                rating: 4.8,
-                reviews: 234
-            },
-            {
-                id: 2,
-                name: "Grand Central Luggage",
-                address: "89 E 42nd St, Midtown",
-                lat: 40.7527,
-                lng: -73.9772,
-                price: 9,
-                hours: "6am - 11pm",
-                phone: "+1 212-555-0124",
-                rating: 4.9,
-                reviews: 567
-            },
-            {
-                id: 3,
-                name: "Times Square Storage",
-                address: "1500 Broadway, Times Square",
-                lat: 40.7577,
-                lng: -73.9857,
-                price: 8,
-                hours: "24/7",
-                phone: "+1 212-555-0125",
-                rating: 4.7,
-                reviews: 892
-            },
-            {
-                id: 4,
-                name: "SoHo Bag Keep",
-                address: "450 W Broadway, SoHo",
-                lat: 40.7250,
-                lng: -74.0005,
-                price: 6,
-                hours: "8am - 10pm",
-                phone: "+1 212-555-0126",
-                rating: 4.6,
-                reviews: 145
-            }
-        ];
+        // REPLACE the entire storageLocations array with this:
+const storageLocations = [
+    {
+        id: 1,
+        name: "Luggage Storage Sydney CBD",
+        address: "69-75 King St, Sydney NSW 2000, Australia",
+        lat: -33.8688598156496,  // Exact coordinates for 69-75 King St
+        lng: 151.20635414254397,   // Exact coordinates for 69-75 King St
+        price: 7,
+        hours: "24/7",
+        phone: "+61415542844", // Replace with your actual phone
+        rating: 5.0,
+        reviews: 0
+    }
+];
 
         let map;
         let markers = [];
@@ -366,8 +332,8 @@
 
         // Initialize map when page loads
         function initMap() {
-            // Default center (New York City)
-            const defaultCenter = { lat: 40.7128, lng: -74.0060 };
+            // Default center (TSG city centre)
+            const defaultCenter = { lat: -33.8688598156496, lng: 151.20635414254397 };
             
             // Create map
             map = new google.maps.Map(document.getElementById('mapView'), {
