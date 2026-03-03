@@ -508,39 +508,66 @@
         
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
+            // Ensure locations are rendered before attempting to select from URL
             displayLocations();
+            getLocationFromUrl();
             setDefaultDates();
         });
         
         function displayLocations() {
             const grid = document.getElementById('locationGrid');
             grid.innerHTML = '';
-            
+
             locations.forEach(loc => {
                 const card = document.createElement('div');
                 card.className = 'location-card';
+                card.dataset.id = loc.id;
                 card.innerHTML = `
                     <div class="location-name">${loc.name}</div>
                     <div class="location-address">${loc.address}</div>
                     <div class="location-price">$${loc.price}/day</div>
                     <div class="location-hours">${loc.hours}</div>
                 `;
-                card.onclick = () => selectLocation(loc);
+                // Pass the clicked element so selectLocation can add the selected class reliably
+                card.onclick = (e) => selectLocation(loc, e.currentTarget);
                 grid.appendChild(card);
             });
         }
         
-        function selectLocation(loc) {
+        // Accept an optional element parameter when selection is triggered by a click
+        function selectLocation(loc, el) {
             selectedLocation = loc;
             pricePerDay = loc.price;
-            
+
             // Remove selected class from all
             document.querySelectorAll('.location-card').forEach(c => c.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-            
+
+            if (el) {
+                el.classList.add('selected');
+            } else {
+                // If no element provided (programmatic selection), try to find it by data-id
+                const card = document.querySelector(`.location-card[data-id="${loc.id}"]`);
+                if (card) card.classList.add('selected');
+            }
+
             document.getElementById('summaryLocation').textContent = loc.name;
             document.getElementById('step1Next').disabled = false;
             updateTotal();
+        }
+
+        // Get location ID from URL and select it if present
+        function getLocationFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const locationId = urlParams.get('location');
+
+            if (locationId) {
+                // Find and select the location (id may be string)
+                const location = locations.find(loc => loc.id == locationId);
+                if (location) {
+                    // If locations are rendered, select programmatically
+                    selectLocation(location);
+                }
+            }
         }
         
         function setDefaultDates() {
