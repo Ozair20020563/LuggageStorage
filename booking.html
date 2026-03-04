@@ -1251,46 +1251,30 @@
 
     // Function to send booking confirmation email
     function sendBookingEmail(bookingData) {
-        console.log("📧 Preparing to send email to:", bookingData.email);
+        console.log("📧 Sending email to:", bookingData.email);
         
-        // Prepare the exact variables your template expects
         const templateParams = {
             to_name: bookingData.name,
             booking_id: bookingData.bookingId,
-            dropoff_date: bookingData.dropoff + ' at ' + (bookingData.dropoffTime || ''),
-            pickup_date: bookingData.pickup + ' at ' + (bookingData.pickupTime || ''),
+            dropoff_date: bookingData.dropoff + ' at ' + bookingData.dropoffTime,
+            pickup_date: bookingData.pickup + ' at ' + bookingData.pickupTime,
             bags: bookingData.bags,
             total: bookingData.total,
             access_code: bookingData.accessCode,
             map_link: "https://maps.google.com/?q=69-75+King+St+Sydney"
         };
         
-        console.log("📋 Sending with params:", templateParams);
+        console.log("📋 Params:", templateParams);
         
-        // Send email using your Service ID and Template ID
-        emailjs.send('service_67vozlf', 'template_3893579', templateParams)
+        // USING CORRECT TEMPLATE ID: template_0m6lqne
+        emailjs.send('service_67vozlf', 'template_0m6lqne', templateParams)
             .then(function(response) {
-                console.log("✅ Email sent successfully!", response);
-                showNotification('✓ Booking confirmation sent to ' + bookingData.email, 'success');
+                console.log("✅ Email sent!", response);
+                showNotification('✓ Email sent to ' + bookingData.email, 'success');
             })
             .catch(function(error) {
                 console.error("❌ Email failed:", error);
-                
-                // Show detailed error
-                let errorMsg = 'Email failed: ';
-                if (error && error.text) {
-                    errorMsg += error.text;
-                    console.error("Error details:", error.text);
-                } else if (error && error.statusText) {
-                    errorMsg += error.statusText;
-                    console.error("Error details:", error.statusText);
-                } else {
-                    errorMsg += 'Unknown error';
-                }
-                
-                showNotification(errorMsg, 'error');
-                
-                // Save backup
+                showNotification('❌ Email failed: ' + (error && error.text ? error.text : 'Check console'), 'error');
                 saveBookingBackup(bookingData);
             });
     }
