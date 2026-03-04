@@ -1253,8 +1253,10 @@
     function sendBookingEmail(bookingData) {
         console.log("📧 Sending email to:", bookingData.email);
         
+        // Temporary test - hardcode destination email to verify EmailJS wiring
         const templateParams = {
             to_name: bookingData.name,
+            to_email: "ozairkhalid4444@gmail.com", // Hardcoded for test
             booking_id: bookingData.bookingId,
             dropoff_date: bookingData.dropoff + ' at ' + bookingData.dropoffTime,
             pickup_date: bookingData.pickup + ' at ' + bookingData.pickupTime,
@@ -1264,7 +1266,7 @@
             map_link: "https://maps.google.com/?q=69-75+King+St+Sydney"
         };
         
-        console.log("📋 Params:", templateParams);
+        console.log("📋 Params with email:", templateParams);
         
         // USING CORRECT TEMPLATE ID: template_0m6lqne
         emailjs.send('service_67vozlf', 'template_0m6lqne', templateParams)
@@ -1274,7 +1276,7 @@
             })
             .catch(function(error) {
                 console.error("❌ Email failed:", error);
-                showNotification('❌ Email failed: ' + (error && error.text ? error.text : 'Check console'), 'error');
+                showNotification('❌ Email failed: ' + (error && error.text ? error.text : 'Unknown error'), 'error');
                 saveBookingBackup(bookingData);
             });
     }
