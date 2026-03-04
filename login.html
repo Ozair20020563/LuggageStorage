@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Luggage Storage Sydney</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+
+    <!-- Your Firebase config and auth helpers -->
+    <script src="/LuggageStorage/js/firebase-config.js"></script>
+    <script src="/LuggageStorage/js/auth.js"></script>
+    
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+        
+        .auth-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .auth-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .auth-body {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-auth {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-google {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            color: #1e293b;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-google:hover {
+            background: #f8fafc;
+            border-color: #667eea;
+        }
+        
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #64748b;
+        }
+        
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #94a3b8;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .divider span {
+            padding: 0 10px;
+        }
+        
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .role-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .role-option:hover {
+            border-color: #667eea;
+        }
+        
+        .role-option.selected {
+            border-color: #667eea;
+            background: #f0f9ff;
+        }
+        
+        .role-option i {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to your account</p>
+            </div>
+            
+            <div class="auth-body">
+                <!-- Email/Password Login -->
+                <form id="loginForm" onsubmit="event.preventDefault(); handleLogin()">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="loginEmail" class="form-control" placeholder="your@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="********" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-auth">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+                
+                <!-- Google Sign In -->
+                <button onclick="googleSignIn()" class="btn-google">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    Continue with Google
+                </button>
+                
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+                    <p style="margin-top: 10px; font-size: 14px;">
+                        <a href="#">Forgot password?</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase config & auth are loaded in the head -->
+    
+    <script>
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            login(email, password);
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                z-index: 9999;
+                animation: slideIn 0.3s;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

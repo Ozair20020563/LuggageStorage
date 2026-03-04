@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Luggage Storage Sydney</title>
+    <!-- Same styles as login.html -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+
+    <!-- Your Firebase config and auth helpers -->
+    <script src="/LuggageStorage/js/firebase-config.js"></script>
+    <script src="/LuggageStorage/js/auth.js"></script>
+    
+    <style>
+        /* Same styles as login.html plus: */
+        .name-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 480px) {
+            .name-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Join Luggage Storage Sydney</p>
+            </div>
+            
+            <div class="auth-body">
+                <!-- Role Selection -->
+                <div class="role-selector">
+                    <div class="role-option selected" onclick="selectRole('customer')" id="roleCustomer">
+                        <i class="fas fa-user"></i>
+                        <div>Customer</div>
+                    </div>
+                    <div class="role-option" onclick="selectRole('partner')" id="rolePartner">
+                        <i class="fas fa-store"></i>
+                        <div>Partner</div>
+                    </div>
+                </div>
+                
+                <!-- Signup Form -->
+                <form id="signupForm" onsubmit="event.preventDefault(); handleSignup()">
+                    <div class="name-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" id="firstName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="signupEmail" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="+61 4xx xxx xxx" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" class="form-control" minlength="6" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" required>
+                    </div>
+                    
+                    <!-- Partner-specific fields (hidden by default) -->
+                    <div id="partnerFields" style="display: none;">
+                        <div class="form-group">
+                            <label>Store Name</label>
+                            <input type="text" id="storeName" class="form-control" placeholder="Your business name">
+                        </div>
+                        <div class="form-group">
+                            <label>Store Address</label>
+                            <input type="text" id="storeAddress" class="form-control" placeholder="69-75 King St, Sydney">
+                        </div>
+                        <div class="form-group">
+                            <label>ABN (Optional)</label>
+                            <input type="text" id="abn" class="form-control" placeholder="12 345 678 901">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-auth">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+                
+                <!-- Google Sign Up -->
+                <button onclick="googleSignIn()" class="btn-google">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    Continue with Google
+                </button>
+                
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="login.html">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase config & auth are loaded in the head -->
+    
+    <script>
+        let selectedRole = 'customer';
+        
+        function selectRole(role) {
+            selectedRole = role;
+            
+            // Update UI
+            document.getElementById('roleCustomer').classList.toggle('selected', role === 'customer');
+            document.getElementById('rolePartner').classList.toggle('selected', role === 'partner');
+            document.getElementById('partnerFields').style.display = role === 'partner' ? 'block' : 'none';
+        }
+        
+        function handleSignup() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('signupEmail').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            const fullName = firstName + ' ' + lastName;
+            
+            // Store partner data if applicable
+            if (selectedRole === 'partner') {
+                const partnerData = {
+                    storeName: document.getElementById('storeName').value,
+                    storeAddress: document.getElementById('storeAddress').value,
+                    abn: document.getElementById('abn').value
+                };
+                localStorage.setItem('pendingPartnerData', JSON.stringify(partnerData));
+            }
+            
+            signUp(email, password, fullName, selectedRole, phone);
+        }
+        
+        function showNotification(message, type) {
+            // Same as login.html
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                z-index: 9999;
+                animation: slideIn 0.3s;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
