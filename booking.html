@@ -8,6 +8,16 @@
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs (required for auth pages) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+
+    <!-- Your Firebase config and auth helpers -->
+    <script src="/LuggageStorage/js/firebase-config.js"></script>
+    <script src="/LuggageStorage/js/auth.js"></script>
     
     <style>
         * {
@@ -454,13 +464,38 @@
                 <i class="fas fa-suitcase"></i>
                 <span>Luggage Storage</span>
             </a>
-            <ul class="nav-links">
+            
+            <!-- Mobile Menu Button -->
+            <div class="menu-toggle" id="mobileMenu">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <!-- Navigation Links -->
+            <ul class="nav-links" id="navLinks">
                 <li><a href="/LuggageStorage/#how-it-works">How it works</a></li>
                 <li><a href="/LuggageStorage/locations">Locations</a></li>
                 <li><a href="/LuggageStorage/#reviews">Reviews</a></li>
                 <li><a href="/LuggageStorage/faq">FAQ</a></li>
-                <li><a href="/LuggageStorage/partner" class="btn btn-outline">Become a partner</a></li>
-                <li><a href="/LuggageStorage/booking" class="btn btn-primary">Book now</a></li>
+                <li><a href="/LuggageStorage/partner" class="btn-outline">Become a partner</a></li>
+                <li><a href="/LuggageStorage/booking" class="btn-primary">Book now</a></li>
+                
+                <!-- AUTH LINKS - These will show/hide based on login status -->
+                <li class="auth-required" style="display: inline-block;">
+                    <a href="/LuggageStorage/login.html" class="btn-outline">Login</a>
+                </li>
+                <li class="auth-required" style="display: inline-block;">
+                    <a href="/LuggageStorage/signup.html" class="btn-primary">Sign Up</a>
+                </li>
+                
+                <li class="auth-hidden" style="display: none;">
+                    <span id="userEmail" style="color: #667eea; font-weight: 500;"></span>
+                </li>
+                <li class="auth-hidden" style="display: none;">
+                    <a href="/LuggageStorage/dashboard/customer.html" class="btn-outline">Dashboard</a>
+                </li>
+                <li class="auth-hidden" style="display: none;">
+                    <a href="#" onclick="logout()" class="btn-primary">Logout</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -904,10 +939,21 @@
             
             // Show confirmation modal
             showConfirmationModal(bookingData);
-            
+
             // SEND EMAIL - This will now work!
             sendBookingEmail(bookingData);
-            
+
+            // Save to Firestore if user is logged in (non-blocking)
+            try {
+                const currentUser = (window.firebase && firebase.auth) ? firebase.auth().currentUser : null;
+                if (currentUser && typeof saveBookingToFirestore === 'function') {
+                    saveBookingToFirestore(bookingData, currentUser.uid)
+                        .catch(err => console.warn('Firestore save failed:', err));
+                }
+            } catch (e) {
+                console.warn('Firestore integration not available:', e);
+            }
+
             // Show success notification
             showNotification('🎉 Booking confirmed! Check your email.', 'success');
         }
@@ -1370,4 +1416,42 @@
         }
     `;
     document.head.appendChild(style);
+</script>
+<!-- Firebase SDKs and config are loaded in the document head -->
+
+<script>
+    // Save booking to Firestore (requires firebase & firebase-config loaded in head)
+    function saveBookingToFirestore(bookingData, userId) {
+        if (typeof db === 'undefined') {
+            console.warn('Firestore not initialized - could not save booking');
+            return Promise.reject(new Error('Firestore not initialized'));
+        }
+
+        const payload = {
+            userId: userId || null,
+            bookingId: bookingData.bookingId,
+            name: bookingData.name,
+            email: bookingData.email,
+            phone: bookingData.phone,
+            dropoff: bookingData.dropoff,
+            dropoffTime: bookingData.dropoffTime,
+            pickup: bookingData.pickup,
+            pickupTime: bookingData.pickupTime,
+            bags: bookingData.bags,
+            total: bookingData.total,
+            accessCode: bookingData.accessCode,
+            status: 'active',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        return db.collection('bookings').add(payload)
+            .then(ref => {
+                console.log('Firestore: booking saved with id', ref.id);
+                return ref;
+            })
+            .catch(err => {
+                console.error('Firestore save failed:', err);
+                throw err;
+            });
+    }
 </script>
