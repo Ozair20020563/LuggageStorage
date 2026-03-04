@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Luggage Storage Sydney CBD - Secure & Affordable | Your Business Name</title>
     <meta name="description" content="Secure luggage storage in Sydney CBD at 69-75 King St. Book online, drop off your bags, and explore hands-free. From $7/day with free cancellation.">
     
@@ -904,6 +904,106 @@
             }
         }
     </style>
+
+    <!-- Mobile navigation & responsive tweaks -->
+    <style>
+        /* Mobile Navigation */
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #667eea;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                border-radius: 0 0 20px 20px;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .nav-links li {
+                margin: 10px 0;
+                width: 100%;
+                text-align: center;
+            }
+            
+            .nav-links a {
+                display: block;
+                padding: 10px;
+            }
+            
+            /* Hero Section Mobile */
+            .hero h1 {
+                font-size: 36px !important;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px !important;
+            }
+            
+            .search-box {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-box input,
+            .search-box button {
+                width: 100%;
+                border-radius: 50px !important;
+            }
+            
+            /* Stats Mobile */
+            .stats-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            /* Grids Mobile */
+            .steps-grid,
+            .features-grid,
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px;
+            }
+            
+            /* City Grid Mobile */
+            .city-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            /* Comparison Table Mobile */
+            .comparison-table {
+                overflow-x: auto;
+            }
+            
+            .comparison-table table {
+                min-width: 600px;
+            }
+            
+            /* Footer Mobile */
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -914,13 +1014,19 @@
                 <span>LuggageVault</span>
             </a>
             
-            <ul class="nav-links">
+            <!-- Mobile Menu Button -->
+            <div class="menu-toggle" id="mobileMenu">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <!-- Navigation Links -->
+            <ul class="nav-links" id="navLinks">
                 <li><a href="/LuggageStorage/#how-it-works">How it works</a></li>
                 <li><a href="/LuggageStorage/locations">Locations</a></li>
                 <li><a href="/LuggageStorage/#reviews">Reviews</a></li>
                 <li><a href="/LuggageStorage/faq">FAQ</a></li>
-                <li><a href="/LuggageStorage/partner" class="btn btn-outline">Become a partner</a></li>
-                <li><a href="/LuggageStorage/booking" class="btn btn-primary">Book now</a></li>
+                <li><a href="/LuggageStorage/partner" class="btn-outline">Become a partner</a></li>
+                <li><a href="/LuggageStorage/booking" class="btn-primary">Book now</a></li>
             </ul>
         </div>
     </nav>
@@ -967,6 +1073,13 @@
             </div>
         </div>
     </section>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenu').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+    </script>
 
     <!-- Featured Cities -->
    <!-- NEW simplified version -->

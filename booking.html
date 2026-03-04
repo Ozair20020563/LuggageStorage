@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Book Luggage Storage Sydney CBD - Secure & Affordable</title>
     
     <!-- Fonts & Icons -->
@@ -342,31 +342,9 @@
         .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #e2e8f0;
-        }
-
-        .summary-row:last-child {
-            border-bottom: none;
-        }
-
-        .summary-total {
-            font-size: 24px;
-            font-weight: 700;
-            color: #667eea;
-            text-align: right;
-            margin-top: 20px;
-        }
-
-        .protection-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
             align-items: center;
-            gap: 15px;
-            margin: 30px 0;
         }
 
         .protection-badge i {
@@ -651,22 +629,78 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Payment method</label>
+                        <label>Select Payment Method</label>
                         <div class="payment-methods">
-                            <div class="payment-method selected" onclick="selectPayment('card')" id="paymentCard">
-                                <i class="fas fa-credit-card"></i>
-                                <div>Credit Card</div>
-                            </div>
-                            <div class="payment-method" onclick="selectPayment('paypal')" id="paymentPaypal">
-                                <i class="fab fa-paypal"></i>
-                                <div>PayPal</div>
-                            </div>
-                            <div class="payment-method" onclick="selectPayment('apple')" id="paymentApple">
-                                <i class="fab fa-apple-pay"></i>
-                                <div>Apple Pay</div>
-                            </div>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="card" checked onclick="selectPayment('card')">
+                                <div class="payment-card">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Credit Card</span>
+                                </div>
+                            </label>
+                            
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="paypal" onclick="selectPayment('paypal')">
+                                <div class="payment-card">
+                                    <i class="fab fa-paypal"></i>
+                                    <span>PayPal</span>
+                                </div>
+                            </label>
+                            
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="apple" onclick="selectPayment('apple')">
+                                <div class="payment-card">
+                                    <i class="fab fa-apple-pay"></i>
+                                    <span>Apple Pay</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
+
+                    <style>
+                        .payment-methods {
+                            display: grid;
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 10px;
+                            margin-top: 10px;
+                        }
+                        
+                        .payment-option {
+                            cursor: pointer;
+                        }
+                        
+                        .payment-option input {
+                            display: none;
+                        }
+                        
+                        .payment-card {
+                            border: 2px solid #e2e8f0;
+                            border-radius: 10px;
+                            padding: 15px 10px;
+                            text-align: center;
+                            transition: all 0.3s;
+                        }
+                        
+                        .payment-option input:checked + .payment-card,
+                        .payment-option.selected .payment-card {
+                            border-color: #667eea;
+                            background: #f0f9ff;
+                            transform: scale(1.05);
+                        }
+                        
+                        .payment-card i {
+                            font-size: 24px;
+                            color: #667eea;
+                            display: block;
+                            margin-bottom: 5px;
+                        }
+                        
+                        @media (max-width: 768px) {
+                            .payment-methods {
+                                grid-template-columns: 1fr;
+                            }
+                        }
+                    </style>
 
                     <div class="protection-badge">
                         <i class="fas fa-shield-alt"></i>
@@ -788,27 +822,132 @@
             document.getElementById('payment' + method.charAt(0).toUpperCase() + method.slice(1)).classList.add('selected');
         }
 
-        // Complete booking
+        // Complete booking (professional flow)
         function completeBooking() {
+            // Get form values
             const name = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             const phone = document.getElementById('phone').value;
-            
+
+            // Validate
             if (!name || !email || !phone) {
-                alert('Please fill in all fields');
+                showNotification('Please fill in all fields', 'error');
                 return;
             }
-            
+
             if (!email.includes('@')) {
-                alert('Please enter a valid email address');
+                showNotification('Please enter a valid email address', 'error');
                 return;
             }
-            
-            alert('Booking confirmed! Check your email for details.\n\nBooking Summary:\n' +
-                  'Location: Sydney CBD\n' +
-                  'Duration: ' + document.getElementById('summaryDuration').textContent + '\n' +
-                  'Bags: ' + bagCount + '\n' +
-                  'Total: ' + document.getElementById('totalPrice').textContent);
+
+            // Generate booking details
+            const bookingId = 'LV' + Date.now().toString().slice(-8);
+            const accessCode = Math.floor(1000 + Math.random() * 9000) + ' ' + Math.floor(1000 + Math.random() * 9000);
+
+            // Get booking data
+            const dropoff = document.getElementById('dropoffDate').value;
+            const pickup = document.getElementById('pickupDate').value;
+            const bags = document.getElementById('bagCount').textContent;
+            const total = document.getElementById('totalPrice').textContent;
+
+            // Generate QR Code (using a free API)
+            const qrData = `Booking: ${bookingId}\nStore: TSG City Centre\nAddress: 69-75 King St Sydney\nCode: ${accessCode}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+
+            // Prepare booking data
+            const bookingData = {
+                bookingId: bookingId,
+                name: name,
+                email: email,
+                phone: phone,
+                dropoff: dropoff,
+                pickup: pickup,
+                bags: bags,
+                total: total,
+                qrCode: qrUrl,
+                accessCode: accessCode
+            };
+
+            // Save to localStorage
+            localStorage.setItem('lastBooking', JSON.stringify(bookingData));
+
+            // Show professional modal
+            showConfirmationModal(bookingData);
+
+            // Send email
+            if (typeof sendBookingEmail === 'function') {
+                sendBookingEmail(bookingData);
+            }
+
+            // Show success notification
+            showNotification('Booking confirmed! Check your email.', 'success');
+        }
+
+        function showConfirmationModal(data) {
+            // Update modal with data
+            document.getElementById('modalBookingId').textContent = data.bookingId;
+            document.getElementById('modalDropoff').textContent = data.dropoff;
+            document.getElementById('modalPickup').textContent = data.pickup;
+            document.getElementById('modalBags').textContent = data.bags + ' bag' + (data.bags > 1 ? 's' : '');
+            document.getElementById('modalTotal').textContent = data.total;
+            document.getElementById('modalEmail').textContent = data.email;
+            document.getElementById('accessCode').textContent = data.accessCode;
+
+            // Add QR code image
+            document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
+
+            // Show modal
+            document.getElementById('confirmationModal').style.display = 'flex';
+        }
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                z-index: 3000;
+                animation: slideInRight 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            `;
+
+            document.body.appendChild(notification);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function closeModal() {
+            document.getElementById('confirmationModal').style.display = 'none';
+            // Redirect to home or thank you page
+            // window.location.href = '/LuggageStorage/';
+        }
+
+        function saveBooking() {
+            const data = localStorage.getItem('lastBooking');
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'booking-confirmation.json';
+            a.click();
         }
 
         // Add event listeners
@@ -816,5 +955,311 @@
         document.getElementById('pickupDate').addEventListener('change', updateDuration);
         document.getElementById('bagSize').addEventListener('change', updateTotal);
     </script>
+
+    <!-- Confirmation Modal (inserted) -->
+    <div class="modal-overlay" id="confirmationModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-check-circle"></i>
+                <h2>Booking Confirmed!</h2>
+            </div>
+            <div class="modal-body">
+                <div class="booking-details">
+                    <div class="detail-row">
+                        <i class="fas fa-hashtag"></i>
+                        <span>Booking ID:</span>
+                        <strong id="modalBookingId">LV-2024-001</strong>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-store"></i>
+                        <span>Location:</span>
+                        <strong>69-75 King St, Sydney CBD</strong>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-calendar"></i>
+                        <span>Drop-off:</span>
+                        <strong id="modalDropoff"></strong>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Pick-up:</span>
+                        <strong id="modalPickup"></strong>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-suitcase"></i>
+                        <span>Bags:</span>
+                        <strong id="modalBags"></strong>
+                    </div>
+                    <div class="detail-row total">
+                        <span>Total Paid:</span>
+                        <strong id="modalTotal"></strong>
+                    </div>
+                </div>
+                
+                <div class="qr-section">
+                    <div class="qr-code-display" id="qrCode"></div>
+                    <p>Show this QR code at our store</p>
+                    <div class="access-code" id="accessCode">1234 5678</div>
+                </div>
+                
+                <div class="email-notice">
+                    <i class="fas fa-envelope"></i>
+                    <p>Booking details have been sent to <span id="modalEmail"></span></p>
+                </div>
+                
+                <div class="location-info">
+                    <h4><i class="fas fa-map-pin"></i> Store Location</h4>
+                    <p><strong>TSG City Centre</strong><br>
+                    69-75 King St, Sydney NSW 2000</p>
+                    <p><i class="fas fa-clock"></i> Open 24/7</p>
+                    <a href="https://maps.google.com/?q=69-75+King+St+Sydney" target="_blank" class="btn-map">
+                        <i class="fas fa-directions"></i> Get Directions
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-done" onclick="closeModal()">Done</button>
+                <button class="btn-save" onclick="saveBooking()">
+                    <i class="fas fa-download"></i> Save to Phone
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 30px 30px 0 0;
+        }
+        
+        .modal-header i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: bounce 1s;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .detail-row i {
+            width: 30px;
+            color: #667eea;
+        }
+        
+        .detail-row span {
+            flex: 1;
+            color: #64748b;
+        }
+        
+        .detail-row.total {
+            border-bottom: none;
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .qr-section {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+        
+        .qr-code-display {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-code-display img {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .access-code {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: #667eea;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .email-notice {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .email-notice i {
+            font-size: 24px;
+            color: #667eea;
+        }
+        
+        .email-notice p {
+            color: #1e293b;
+            font-size: 14px;
+        }
+        
+        .email-notice span {
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .location-info {
+            background: linear-gradient(135deg, #f0f9ff, #e6f0ff);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .btn-map {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            padding: 20px 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .btn-done, .btn-save {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-done {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-done:hover, .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+
 </body>
 </html>
+
+<!-- Add EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<script>
+    // Initialize EmailJS with provided Public Key
+    (function() {
+        emailjs.init("MkhcPPWbr-fafDf2V"); // Public Key
+    })();
+
+    // Send booking email using EmailJS
+    function sendBookingEmail(bookingData) {
+        const templateParams = {
+            to_email: bookingData.email,
+            to_name: bookingData.name,
+            booking_id: bookingData.bookingId,
+            dropoff_date: bookingData.dropoff + ' ' + (bookingData.dropoffTime || ''),
+            pickup_date: bookingData.pickup + ' ' + (bookingData.pickupTime || ''),
+            bags: bookingData.bags,
+            total: bookingData.total,
+            location: "TSG City Centre, 69-75 King St Sydney",
+            qr_code: bookingData.qrCode,
+            access_code: bookingData.accessCode,
+            store_address: "69-75 King St, Sydney NSW 2000",
+            store_hours: "24/7",
+            map_link: "https://maps.google.com/?q=69-75+King+St+Sydney"
+        };
+
+        // Use provided Service ID and Template ID
+        emailjs.send('service_67vozlf', 'template_3893579', templateParams)
+            .then(function(response) {
+                console.log('Email sent successfully!', response);
+            }, function(error) {
+                console.error('Email failed to send:', error);
+            });
+    }
+</script>
