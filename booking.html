@@ -1251,11 +1251,11 @@
 
     // Function to send booking confirmation email
     function sendBookingEmail(bookingData) {
-        console.log("📧 Sending email to:", bookingData.email);
+        console.log("📧 Preparing email for:", bookingData.email);
         
         const templateParams = {
             to_name: bookingData.name,
-            to_email: bookingData.email, // use customer's email
+            to_email: bookingData.email, // This MUST be the customer's email
             booking_id: bookingData.bookingId,
             dropoff_date: bookingData.dropoff + ' at ' + bookingData.dropoffTime,
             pickup_date: bookingData.pickup + ' at ' + bookingData.pickupTime,
@@ -1264,10 +1264,9 @@
             access_code: bookingData.accessCode,
             map_link: "https://maps.google.com/?q=69-75+King+St+Sydney"
         };
-
-        console.log("📋 Sending to email:", templateParams.to_email);
-
-        // USING CORRECT TEMPLATE ID: template_0m6lqne
+        
+        console.log("📋 Sending to:", templateParams.to_email);
+        
         emailjs.send('service_67vozlf', 'template_0m6lqne', templateParams)
             .then(function(response) {
                 console.log("✅ Email sent to:", bookingData.email);
@@ -1275,7 +1274,7 @@
             })
             .catch(function(error) {
                 console.error("❌ Email failed:", error);
-                showNotification('❌ Email failed: ' + (error && error.text ? error.text : 'Unknown error'), 'error');
+                showNotification('❌ Email failed', 'error');
                 saveBookingBackup(bookingData);
             });
     }
