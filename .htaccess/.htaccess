@@ -1,3 +1,29 @@
+ # Security Headers
+<IfModule mod_headers.c>
+    # Content Security Policy
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://maps.googleapis.com https://api.qrserver.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.emailjs.com;"
+    
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Clickjacking protection
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # HSTS (force HTTPS)
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Prevent directory browsing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 RewriteEngine On
 
 # Remove .html extension

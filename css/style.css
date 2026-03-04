@@ -816,3 +816,275 @@ footer {
         text-align: center;
     }
 }
+
+/* ===== ENHANCED ANIMATIONS ===== */
+
+/* Floating Animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.float {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Gradient Shift */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.gradient-bg {
+    background: linear-gradient(-45deg, #667eea, #764ba2, #ff6b6b, #4ecdc4);
+    background-size: 300% 300%;
+    animation: gradientShift 10s ease infinite;
+}
+
+/* Glow Effect */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px #667eea; }
+    50% { box-shadow: 0 0 20px #667eea, 0 0 30px #764ba2; }
+    100% { box-shadow: 0 0 5px #667eea; }
+}
+
+.glow {
+    animation: glow 3s ease-in-out infinite;
+}
+
+/* Slide In Animations */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Rotating Elements */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.rotate-slow {
+    animation: rotate 20s linear infinite;
+}
+
+/* Bounce */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.bounce {
+    animation: bounce 2s ease infinite;
+}
+
+/* Shimmer Effect */
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 3s infinite;
+}
+
+/* Apply animations to elements */
+.hero h1 {
+    animation: slideInLeft 1s ease-out;
+}
+
+.hero-subtitle {
+    animation: slideInRight 1s ease-out 0.2s both;
+}
+
+.search-container {
+    animation: slideInUp 1s ease-out 0.4s both;
+}
+
+.step-card {
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+}
+
+.city-card {
+    transition: all 0.3s ease;
+}
+
+.city-card:hover {
+    transform: scale(1.1) rotate(2deg);
+}
+
+.btn-primary {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.btn-primary:hover::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* Loading Animation */
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Page Transitions */
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+/* Responsive Touchups */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem !important;
+        animation: slideInUp 0.8s ease-out;
+    }
+    
+    .step-card {
+        margin: 10px;
+    }
+    
+    .city-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .city-card {
+        transform: scale(0.95);
+    }
+    
+    .city-card:hover {
+        transform: scale(1.05);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem !important;
+    }
+    
+    .city-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .btn-primary, .btn-outline {
+        width: 100%;
+        text-align: center;
+        margin: 5px 0;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1a1a1a;
+        color: #f0f0f0;
+    }
+    
+    .navbar {
+        background: rgba(30, 30, 30, 0.95);
+    }
+    
+    .card, .step-card, .location-card {
+        background: #2d2d2d;
+        color: #f0f0f0;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .navbar, .btn, .search-container, .newsletter {
+        display: none !important;
+    }
+}

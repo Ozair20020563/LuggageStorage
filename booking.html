@@ -452,7 +452,7 @@
         <div class="nav-container">
             <a href="/LuggageStorage/" class="logo">
                 <i class="fas fa-suitcase"></i>
-                <span>LuggageVault</span>
+                <span>Luggagestoarge</span>
             </a>
             <ul class="nav-links">
                 <li><a href="/LuggageStorage/#how-it-works">How it works</a></li>
@@ -831,27 +831,44 @@
             }
         }
 
+        // Sanitize inputs to reduce XSS risk
+        function sanitizeInput(input) {
+            if (!input || typeof input !== 'string') return '';
+            // Remove script tags and angle brackets
+            return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                        .replace(/[<>]/g, '');
+        }
+
         // Complete booking (professional flow)
         function completeBooking() {
-            // Get all form values
-            const name = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
+            // Get and sanitize form values
+            const name = sanitizeInput(document.getElementById('fullName').value);
+            const email = (document.getElementById('email').value || '').trim();
+            const phone = sanitizeInput(document.getElementById('phone').value);
             const dropoffDate = document.getElementById('dropoffDate').value;
             const dropoffTime = document.getElementById('dropoffTime').value;
             const pickupDate = document.getElementById('pickupDate').value;
             const pickupTime = document.getElementById('pickupTime').value;
             const bags = document.getElementById('bagCount').textContent;
             const total = document.getElementById('totalPrice').textContent;
-            
-            // Validate
+
+            // Basic required-field validation
             if (!name || !email || !phone) {
                 showNotification('Please fill in all fields', 'error');
                 return;
             }
-            
-            if (!email.includes('@')) {
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
                 showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+
+            // Validate phone (basic format)
+            const phoneRegex = /^[0-9\s\+\(\)]{10,15}$/;
+            if (!phoneRegex.test(phone)) {
+                showNotification('Please enter a valid phone number', 'error');
                 return;
             }
             
