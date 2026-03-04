@@ -735,6 +735,8 @@
             document.getElementById('dropoffDate').value = today.toISOString().split('T')[0];
             document.getElementById('pickupDate').value = tomorrow.toISOString().split('T')[0];
             updateDuration();
+            // Ensure payment UI reflects the default selection on load
+            if (typeof selectPayment === 'function') selectPayment('card');
         });
 
         // Select location
@@ -814,12 +816,19 @@
             updateTotal();
         }
 
-        // Select payment method
+        // Select payment method (works with radio-based mobile markup)
         function selectPayment(method) {
-            document.querySelectorAll('.payment-method').forEach(el => {
-                el.classList.remove('selected');
-            });
-            document.getElementById('payment' + method.charAt(0).toUpperCase() + method.slice(1)).classList.add('selected');
+            // Remove selected class from all options
+            document.querySelectorAll('.payment-option').forEach(label => label.classList.remove('selected'));
+
+            // Find the radio input matching the method and check it
+            const input = document.querySelector('.payment-option input[value="' + method + '"]');
+            if (input) {
+                input.checked = true;
+                // Add selected class to its label wrapper
+                const wrapper = input.closest('.payment-option');
+                if (wrapper) wrapper.classList.add('selected');
+            }
         }
 
         // Complete booking (professional flow)
