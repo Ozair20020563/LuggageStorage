@@ -833,63 +833,66 @@
 
         // Complete booking (professional flow)
         function completeBooking() {
-            // Get form values
+            // Get all form values
             const name = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             const phone = document.getElementById('phone').value;
-
+            const dropoffDate = document.getElementById('dropoffDate').value;
+            const dropoffTime = document.getElementById('dropoffTime').value;
+            const pickupDate = document.getElementById('pickupDate').value;
+            const pickupTime = document.getElementById('pickupTime').value;
+            const bags = document.getElementById('bagCount').textContent;
+            const total = document.getElementById('totalPrice').textContent;
+            
             // Validate
             if (!name || !email || !phone) {
                 showNotification('Please fill in all fields', 'error');
                 return;
             }
-
+            
             if (!email.includes('@')) {
                 showNotification('Please enter a valid email address', 'error');
                 return;
             }
-
+            
             // Generate booking details
-            const bookingId = 'LV' + Date.now().toString().slice(-8);
-            const accessCode = Math.floor(1000 + Math.random() * 9000) + ' ' + Math.floor(1000 + Math.random() * 9000);
-
-            // Get booking data
-            const dropoff = document.getElementById('dropoffDate').value;
-            const pickup = document.getElementById('pickupDate').value;
-            const bags = document.getElementById('bagCount').textContent;
-            const total = document.getElementById('totalPrice').textContent;
-
-            // Generate QR Code (using a free API)
-            const qrData = `Booking: ${bookingId}\nStore: TSG City Centre\nAddress: 69-75 King St Sydney\nCode: ${accessCode}`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
-
+            const bookingId = 'LV' + Date.now().toString().slice(-8) + 
+                             Math.random().toString(36).substring(2, 5).toUpperCase();
+            const accessCode = Math.floor(1000 + Math.random() * 9000) + ' ' + 
+                              Math.floor(1000 + Math.random() * 9000);
+            
+            // Generate QR Code
+            const qrData = `Booking: ${bookingId}\nCode: ${accessCode.replace(' ', '')}\nStore: TSG City Centre\n69-75 King St Sydney`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+            
             // Prepare booking data
             const bookingData = {
-                bookingId: bookingId,
                 name: name,
                 email: email,
                 phone: phone,
-                dropoff: dropoff,
-                pickup: pickup,
+                bookingId: bookingId,
+                dropoff: dropoffDate,
+                dropoffTime: dropoffTime,
+                pickup: pickupDate,
+                pickupTime: pickupTime,
                 bags: bags,
                 total: total,
                 qrCode: qrUrl,
-                accessCode: accessCode
+                accessCode: accessCode,
+                timestamp: new Date().toISOString()
             };
-
+            
             // Save to localStorage
             localStorage.setItem('lastBooking', JSON.stringify(bookingData));
-
-            // Show professional modal
+            
+            // Show confirmation modal
             showConfirmationModal(bookingData);
-
-            // Send email
-            if (typeof sendBookingEmail === 'function') {
-                sendBookingEmail(bookingData);
-            }
-
+            
+            // SEND EMAIL - This will now work!
+            sendBookingEmail(bookingData);
+            
             // Show success notification
-            showNotification('Booking confirmed! Check your email.', 'success');
+            showNotification('🎉 Booking confirmed! Check your email.', 'success');
         }
 
         function showConfirmationModal(data) {
@@ -1237,38 +1240,137 @@
 </html>
 
 <!-- Add EmailJS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
-    // Initialize EmailJS with provided Public Key
+    // Initialize EmailJS with your Public Key
     (function() {
-        emailjs.init("MkhcPPWbr-fafDf2V"); // Public Key
+        emailjs.init("MkhcPPWbr-fafDf2V");
+        console.log("✅ EmailJS initialized successfully");
     })();
 
-    // Send booking email using EmailJS
+    // Function to send booking confirmation email
     function sendBookingEmail(bookingData) {
+        console.log("📧 Preparing to send email to:", bookingData.email);
+        
+        // Prepare the exact variables your template expects
         const templateParams = {
-            to_email: bookingData.email,
             to_name: bookingData.name,
             booking_id: bookingData.bookingId,
-            dropoff_date: bookingData.dropoff + ' ' + (bookingData.dropoffTime || ''),
-            pickup_date: bookingData.pickup + ' ' + (bookingData.pickupTime || ''),
+            dropoff_date: bookingData.dropoff + ' at ' + (bookingData.dropoffTime || ''),
+            pickup_date: bookingData.pickup + ' at ' + (bookingData.pickupTime || ''),
             bags: bookingData.bags,
             total: bookingData.total,
-            location: "TSG City Centre, 69-75 King St Sydney",
-            qr_code: bookingData.qrCode,
             access_code: bookingData.accessCode,
-            store_address: "69-75 King St, Sydney NSW 2000",
-            store_hours: "24/7",
             map_link: "https://maps.google.com/?q=69-75+King+St+Sydney"
         };
-
-        // Use provided Service ID and Template ID
+        
+        console.log("📋 Sending with params:", templateParams);
+        
+        // Send email using your Service ID and Template ID
         emailjs.send('service_67vozlf', 'template_3893579', templateParams)
             .then(function(response) {
-                console.log('Email sent successfully!', response);
-            }, function(error) {
-                console.error('Email failed to send:', error);
+                console.log("✅ Email sent successfully!", response);
+                showNotification('✓ Booking confirmation sent to ' + bookingData.email, 'success');
+            })
+            .catch(function(error) {
+                console.error("❌ Email failed:", error);
+                
+                // Show detailed error
+                let errorMsg = 'Email failed: ';
+                if (error && error.text) {
+                    errorMsg += error.text;
+                    console.error("Error details:", error.text);
+                } else if (error && error.statusText) {
+                    errorMsg += error.statusText;
+                    console.error("Error details:", error.statusText);
+                } else {
+                    errorMsg += 'Unknown error';
+                }
+                
+                showNotification(errorMsg, 'error');
+                
+                // Save backup
+                saveBookingBackup(bookingData);
             });
     }
+    
+    // Save booking backup locally
+    function saveBookingBackup(bookingData) {
+        const bookingInfo = {
+            ...bookingData,
+            backup_time: new Date().toISOString(),
+            message: "Email failed - please show this at the store"
+        };
+        
+        localStorage.setItem('lastBooking_backup', JSON.stringify(bookingInfo));
+        
+        // Create downloadable file
+        const blob = new Blob([JSON.stringify(bookingInfo, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `booking-${bookingData.bookingId}.txt`;
+        a.click();
+        
+        showNotification('📥 Booking saved to your device', 'success');
+    }
+    
+    // Notification system
+    function showNotification(message, type) {
+        const colors = {
+            success: '#10b981',
+            error: '#ef4444',
+            info: '#3b82f6',
+            warning: '#f59e0b'
+        };
+        
+        const icons = {
+            success: '✅',
+            error: '❌',
+            info: '📧',
+            warning: '⚠️'
+        };
+        
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${colors[type]};
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.3s;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        `;
+        
+        notification.innerHTML = `${icons[type]} ${message}`;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.3s';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
 </script>
