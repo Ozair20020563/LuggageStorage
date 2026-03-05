@@ -218,6 +218,199 @@
         
         <h2 style="margin-bottom: 20px;">Your Bookings</h2>
         <div id="bookingsList"></div>
+
+        <!-- Account Settings Section -->
+        <div class="settings-section" style="margin-top: 50px;">
+            <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-cog"></i> Account Settings
+            </h2>
+            
+            <div class="settings-card" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1;">
+                        <h3 style="margin-bottom: 10px; color: #1e293b;">Delete Account</h3>
+                        <p style="color: #64748b; margin-bottom: 15px;">
+                            Once you delete your account, there is no going back. All your booking history and personal data will be permanently removed.
+                        </p>
+                        <div style="background: #fef2f2; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                            <p style="color: #ef4444; font-size: 14px;">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                Warning: This action cannot be undone. All your bookings will be cancelled and data will be permanently deleted.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delete Button -->
+                <button onclick="showDeleteConfirmation()" class="btn-delete" style="background: #ef4444; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                    <i class="fas fa-trash-alt"></i> Delete My Account
+                </button>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <h2 style="color: white;">Delete Account?</h2>
+                    <p style="color: white; opacity: 0.9;">This action cannot be undone</p>
+                </div>
+                
+                <div class="modal-body" style="padding: 30px;">
+                    <p style="margin-bottom: 20px; color: #1e293b;">Please confirm by entering your password:</p>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
+                        <input type="password" id="deletePassword" class="form-control" placeholder="Enter your password" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="deleteAccount()" class="btn-delete" style="flex: 1; background: #ef4444; color: white; border: none; padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer;">
+                            Yes, Delete My Account
+                        </button>
+                        <button onclick="closeDeleteModal()" class="btn-cancel" style="flex: 1; background: #e2e8f0; color: #1e293b; border: none; padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add these styles -->
+        <style>
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: blur(5px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2000;
+                animation: fadeIn 0.3s;
+            }
+            
+            .modal-content {
+                background: white;
+                border-radius: 30px;
+                overflow: hidden;
+                animation: slideUp 0.3s;
+                max-width: 450px;
+                width: 90%;
+            }
+            
+            .modal-header {
+                padding: 30px;
+                text-align: center;
+            }
+            
+            .btn-delete:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+            }
+            
+            .btn-cancel:hover {
+                background: #cbd5e1;
+                transform: translateY(-2px);
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        </style>
+
+        <!-- JavaScript for Account Deletion -->
+        <script>
+            
+            function showDeleteConfirmation() {
+                document.getElementById('deleteModal').style.display = 'flex';
+            }
+            
+            function closeDeleteModal() {
+                document.getElementById('deleteModal').style.display = 'none';
+                document.getElementById('deletePassword').value = '';
+            }
+            
+            async function deleteAccount() {
+                const password = document.getElementById('deletePassword').value;
+                
+                if (!password) {
+                    showNotification('Please enter your password', 'error');
+                    return;
+                }
+                
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    showNotification('You must be logged in', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                const deleteBtn = document.querySelector('.btn-delete');
+                const originalText = deleteBtn.innerHTML;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                deleteBtn.disabled = true;
+                
+                try {
+                    // Re-authenticate user before deletion (security requirement)
+                    const credential = firebase.auth.EmailAuthProvider.credential(
+                        user.email, 
+                        password
+                    );
+                    
+                    await user.reauthenticateWithCredential(credential);
+                    
+                    // Delete user data from Firestore first
+                    await db.collection('users').doc(user.uid).delete();
+                    
+                    // Delete all user's bookings
+                    const bookings = await db.collection('bookings')
+                        .where('userId', '==', user.uid)
+                        .get();
+                    
+                    const batch = db.batch();
+                    bookings.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+                    
+                    // Finally delete the user account
+                    await user.delete();
+                    
+                    showNotification('Your account has been permanently deleted', 'success');
+                    
+                    // Redirect to home page
+                    setTimeout(() => {
+                        window.location.href = '/LuggageStorage/';
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Delete account error:', error);
+                    
+                    if (error.code === 'auth/wrong-password') {
+                        showNotification('Incorrect password', 'error');
+                    } else if (error.code === 'auth/too-many-requests') {
+                        showNotification('Too many attempts. Please try again later.', 'error');
+                    } else {
+                        showNotification(error.message || 'Failed to delete account', 'error');
+                    }
+                    
+                    // Reset button
+                    deleteBtn.innerHTML = originalText;
+                    deleteBtn.disabled = false;
+                }
+            }
+        </script>
     </div>
     
     <!-- Firebase config & auth are loaded in the head -->

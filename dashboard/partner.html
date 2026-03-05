@@ -27,3 +27,139 @@
     <h3>📅 Today's Schedule</h3>
     <div id="todaysSchedule"></div>
 </div>
+
+<!-- Account Settings Section for Partners -->
+<div class="settings-section" style="margin-top: 50px;">
+    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-cog"></i> Account Settings
+    </h2>
+    
+    <div class="settings-card" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1;">
+                <h3 style="margin-bottom: 10px; color: #1e293b;">Delete Partner Account</h3>
+                <p style="color: #64748b; margin-bottom: 15px;">
+                    Deleting your partner account will remove all your store information, booking history, and earnings data.
+                </p>
+                <div style="background: #fef2f2; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="color: #ef4444; font-size: 14px;">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>Important:</strong> This will cancel all upcoming bookings at your store. Customers will be notified.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="showPartnerDeleteConfirmation()" class="btn-delete" style="background: #ef4444; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; cursor: pointer;">
+            <i class="fas fa-trash-alt"></i> Delete Partner Account
+        </button>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal for Partner -->
+<div id="partnerDeleteModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
+            <h2 style="color: white;">Delete Partner Account?</h2>
+            <p style="color: white; opacity: 0.9;">This action cannot be undone</p>
+        </div>
+        
+        <div class="modal-body" style="padding: 30px;">
+            <p style="margin-bottom: 20px; color: #1e293b;">Please confirm by entering your password:</p>
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
+                <input type="password" id="partnerDeletePassword" class="form-control" placeholder="Enter your password" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;">
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="deletePartnerAccount()" class="btn-delete" style="flex: 1; background: #ef4444; color: white; border: none; padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer;">
+                    Yes, Delete My Account
+                </button>
+                <button onclick="closePartnerDeleteModal()" class="btn-cancel" style="flex: 1; background: #e2e8f0; color: #1e293b; border: none; padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reuse styles from customer modal (scoped here for partner) -->
+<style>
+    #partnerDeleteModal.modal-overlay { z-index: 2100; }
+</style>
+
+<!-- JavaScript for Partner Account Deletion (namespaced) -->
+<script>
+    function showPartnerDeleteConfirmation() {
+        document.getElementById('partnerDeleteModal').style.display = 'flex';
+    }
+
+    function closePartnerDeleteModal() {
+        document.getElementById('partnerDeleteModal').style.display = 'none';
+        document.getElementById('partnerDeletePassword').value = '';
+    }
+
+    async function deletePartnerAccount() {
+        const password = document.getElementById('partnerDeletePassword').value;
+        if (!password) {
+            showNotification('Please enter your password', 'error');
+            return;
+        }
+
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            showNotification('You must be logged in', 'error');
+            return;
+        }
+
+        const deleteBtn = document.querySelector('#partnerDeleteModal .btn-delete');
+        const originalText = deleteBtn.innerHTML;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        deleteBtn.disabled = true;
+
+        try {
+            // Re-authenticate
+            const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+            await user.reauthenticateWithCredential(credential);
+
+            // Delete partner user doc
+            await db.collection('users').doc(user.uid).delete();
+
+            // Delete stores owned by partner and their bookings
+            const storesSnap = await db.collection('stores').where('ownerId', '==', user.uid).get();
+            const storeIds = [];
+            const batch = db.batch();
+
+            storesSnap.forEach(snap => {
+                storeIds.push(snap.id);
+                batch.delete(snap.ref);
+            });
+
+            // Delete bookings for these stores
+            if (storeIds.length) {
+                const bookingsSnap = await db.collection('bookings').where('storeId', 'in', storeIds).get();
+                bookingsSnap.forEach(b => batch.delete(b.ref));
+            }
+
+            // Also delete bookings where partnerId == user.uid
+            const partnerBookings = await db.collection('bookings').where('partnerId', '==', user.uid).get();
+            partnerBookings.forEach(b => batch.delete(b.ref));
+
+            await batch.commit();
+
+            // Finally delete user account
+            await user.delete();
+
+            showNotification('Partner account and store data deleted', 'success');
+            setTimeout(() => window.location.href = '/LuggageStorage/', 1500);
+        } catch (error) {
+            console.error('Partner delete error:', error);
+            if (error.code === 'auth/wrong-password') showNotification('Incorrect password', 'error');
+            else showNotification(error.message || 'Failed to delete partner account', 'error');
+            deleteBtn.innerHTML = originalText;
+            deleteBtn.disabled = false;
+        }
+    }
+</script>

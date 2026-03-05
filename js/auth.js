@@ -170,6 +170,47 @@ function showNotification(message, type) {
   }, 3000);
 }
 
+// Reauthentication helper
+async function reauthenticateUser(password) {
+  const user = firebase.auth().currentUser;
+  if (!user) throw new Error('No user logged in');
+    
+  const credential = firebase.auth.EmailAuthProvider.credential(
+    user.email,
+    password
+  );
+    
+  return user.reauthenticateWithCredential(credential);
+}
+
+// Delete account with all associated data
+async function deleteUserAccount(password) {
+  const user = firebase.auth().currentUser;
+  if (!user) throw new Error('No user logged in');
+    
+  // Reauthenticate
+  await reauthenticateUser(password);
+    
+  // Delete user data from Firestore
+  await db.collection('users').doc(user.uid).delete();
+    
+  // Delete user's bookings
+  const bookingsSnapshot = await db.collection('bookings')
+    .where('userId', '==', user.uid)
+    .get();
+    
+  const batch = db.batch();
+  bookingsSnapshot.forEach(doc => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
+    
+  // Delete user account
+  await user.delete();
+    
+  return { success: true };
+}
+
 // Add animation styles
 const style = document.createElement('style');
 style.textContent = `
