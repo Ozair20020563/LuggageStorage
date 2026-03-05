@@ -236,7 +236,100 @@
     </style>
 </head>
 <body>
-    <!-- Navigation (same as before) -->
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/LuggageStorage/" class="logo">
+                <i class="fas fa-suitcase"></i>
+                <span>Luggage Storage</span>
+            </a>
+            
+            <!-- Mobile Menu Button -->
+            <div class="menu-toggle" id="mobileMenu">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <!-- Navigation Links -->
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/LuggageStorage/#how-it-works">How it works</a></li>
+                <li><a href="/LuggageStorage/locations">Locations</a></li>
+                <li><a href="/LuggageStorage/#reviews">Reviews</a></li>
+                <li><a href="/LuggageStorage/faq">FAQ</a></li>
+                <li><a href="/LuggageStorage/partner" class="btn-outline">Become a partner</a></li>
+                <li><a href="/LuggageStorage/booking" class="btn-primary">Book now</a></li>
+                
+                <!-- Auth Links - Dynamic -->
+                <li class="auth-links" id="authLinks">
+                    <!-- These will be populated by JavaScript -->
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Add this JavaScript right after navigation -->
+    <script>
+        // Function to update auth links based on login state
+        function updateAuthLinks() {
+            const authLinksContainer = document.getElementById('authLinks');
+            const user = firebase.auth().currentUser;
+            
+            if (user) {
+                // User is logged in
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        const role = doc.data().role;
+                        authLinksContainer.innerHTML = `
+                            <span class="user-email">${user.email}</span>
+                            <a href="/LuggageStorage/dashboard/${role}.html" class="btn-outline">Dashboard</a>
+                            <a href="#" onclick="logout()" class="btn-primary">Logout</a>
+                        `;
+                    }
+                });
+            } else {
+                // User is logged out
+                authLinksContainer.innerHTML = `
+                    <a href="/LuggageStorage/login.html" class="btn-outline">Login</a>
+                    <a href="/LuggageStorage/signup.html" class="btn-primary">Sign Up</a>
+                `;
+            }
+        }
+        
+        // Listen for auth state changes
+        firebase.auth().onAuthStateChanged((user) => {
+            updateAuthLinks();
+        });
+        
+        // Logout function
+        function logout() {
+            firebase.auth().signOut()
+                .then(() => {
+                    window.location.href = '/LuggageStorage/';
+                })
+                .catch((error) => {
+                    console.error('Logout error:', error);
+                });
+        }
+    </script>
+
+    <!-- Add these styles for the user email -->
+    <style>
+        .user-email {
+            color: #667eea;
+            font-weight: 500;
+            margin-right: 10px;
+            padding: 5px 10px;
+            background: #f0f9ff;
+            border-radius: 50px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .user-email {
+                margin: 10px 0;
+                display: inline-block;
+            }
+        }
+    </style>
     
     <!-- Partner Hero -->
     <section class="partner-hero">
