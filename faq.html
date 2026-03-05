@@ -41,78 +41,392 @@
                 <li><a href="/LuggageStorage/partner" class="btn-outline">Become a partner</a></li>
                 <li><a href="/LuggageStorage/booking" class="btn-primary">Book now</a></li>
                 
-                <!-- Auth Links - Dynamic -->
-                <li class="auth-links" id="authLinks">
-                    <!-- These will be populated by JavaScript -->
+                <!-- User Menu - Dynamic -->
+                <li class="user-menu-container" id="userMenuContainer">
+                    <!-- This will be populated by JavaScript -->
                 </li>
             </ul>
         </div>
     </nav>
 
-    <!-- Add this JavaScript right after navigation -->
+    <!-- User Menu Styles -->
+    <style>
+        .user-menu-container {
+            position: relative;
+            margin-left: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            border-color: white;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-width: 250px;
+            display: none;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .user-dropdown.show {
+            display: block;
+        }
+        
+        .dropdown-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .dropdown-header .user-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .dropdown-header .user-email-small {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .dropdown-menu {
+            list-style: none;
+            padding: 10px 0;
+        }
+        
+        .dropdown-menu li {
+            padding: 0;
+        }
+        
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #1e293b;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .dropdown-menu a:hover {
+            background: #f0f9ff;
+            color: #667eea;
+        }
+        
+        .dropdown-menu i {
+            width: 20px;
+            color: #667eea;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 8px 0;
+        }
+        
+        .logout-item a {
+            color: #ef4444;
+        }
+        
+        .logout-item a:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .logout-item i {
+            color: #ef4444;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .user-menu-container {
+                margin: 10px 0;
+                width: 100%;
+            }
+            
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            .user-dropdown {
+                position: static;
+                width: 100%;
+                margin-top: 10px;
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+
+    <!-- User Menu JavaScript -->
     <script>
-        // Function to update auth links based on login state
-        function updateAuthLinks() {
-            const authLinksContainer = document.getElementById('authLinks');
-            const user = firebase.auth().currentUser;
+        // Function to update user menu based on login state
+        function updateUserMenu(user) {
+            const menuContainer = document.getElementById('userMenuContainer');
             
             if (user) {
-                // User is logged in
+                // Get user name from Firestore
                 db.collection('users').doc(user.uid).get().then(doc => {
                     if (doc.exists) {
-                        const role = doc.data().role;
-                        authLinksContainer.innerHTML = `
-                            <span class="user-email">${user.email}</span>
-                            <a href="/LuggageStorage/dashboard/${role}.html" class="btn-outline">Dashboard</a>
-                            <a href="#" onclick="logout()" class="btn-primary">Logout</a>
+                        const userData = doc.data();
+                        const name = userData.name || 'User';
+                        const email = user.email;
+                        const role = userData.role || 'customer';
+                        
+                        // Get initials (e.g., "JD" for John Doe)
+                        const initials = name
+                            .split(' ')
+                            .map(word => word[0])
+                            .join('')
+                            .toUpperCase()
+                            .substring(0, 2);
+                        
+                        // Create avatar with initials
+                        menuContainer.innerHTML = `
+                            <div class="user-avatar" onclick="toggleUserMenu()" title="${name}">
+                                ${initials}
+                            </div>
+                            <div class="user-dropdown" id="userDropdown">
+                                <div class="dropdown-header">
+                                    <div class="user-name">${name}</div>
+                                    <div class="user-email-small">${email}</div>
+                                </div>
+                                <ul class="dropdown-menu">
+                                    <li><a href="/LuggageStorage/dashboard/${role}.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                    <li><a href="#" onclick="showUserProfile()"><i class="fas fa-user-circle"></i> Profile</a></li>
+                                    <li><a href="/LuggageStorage/booking.html"><i class="fas fa-suitcase"></i> New Booking</a></li>
+                                    <li class="dropdown-divider"></li>
+                                    <li class="logout-item"><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign out</a></li>
+                                </ul>
+                            </div>
                         `;
                     }
                 });
             } else {
-                // User is logged out
-                authLinksContainer.innerHTML = `
-                    <a href="/LuggageStorage/login.html" class="btn-outline">Login</a>
-                    <a href="/LuggageStorage/signup.html" class="btn-primary">Sign Up</a>
+                // Show login/signup buttons
+                menuContainer.innerHTML = `
+                    <li class="auth-links" style="display: flex; gap: 10px; list-style: none;">
+                        <a href="/LuggageStorage/login.html" class="btn-outline">Login</a>
+                        <a href="/LuggageStorage/signup.html" class="btn-primary">Sign Up</a>
+                    </li>
                 `;
             }
         }
         
-        // Listen for auth state changes
-        firebase.auth().onAuthStateChanged((user) => {
-            updateAuthLinks();
+        // Toggle user dropdown menu
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const avatar = document.querySelector('.user-avatar');
+            
+            if (dropdown && avatar && !avatar.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
         });
         
-        // Logout function
-        function logout() {
-            firebase.auth().signOut()
-                .then(() => {
-                    window.location.href = '/LuggageStorage/';
-                })
-                .catch((error) => {
-                    console.error('Logout error:', error);
-                });
-        }
-    </script>
-
-    <!-- Add these styles for the user email -->
-    <style>
-        .user-email {
-            color: #667eea;
-            font-weight: 500;
-            margin-right: 10px;
-            padding: 5px 10px;
-            background: #f0f9ff;
-            border-radius: 50px;
-            font-size: 14px;
+        // Show user profile modal
+        function showUserProfile() {
+            const user = firebase.auth().currentUser;
+            if (!user) return;
+            
+            db.collection('users').doc(user.uid).get().then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    
+                    // Create profile modal
+                    const modal = document.createElement('div');
+                    modal.className = 'profile-modal';
+                    modal.innerHTML = `
+                        <div class="profile-content">
+                            <div class="profile-header">
+                                <div class="profile-avatar-large">
+                                    ${userData.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)}
+                                </div>
+                                <h2>${userData.name}</h2>
+                                <p>${user.email}</p>
+                            </div>
+                            <div class="profile-body">
+                                <div class="profile-row">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Email</span>
+                                    <strong>${user.email}</strong>
+                                </div>
+                                <div class="profile-row">
+                                    <i class="fas fa-phone"></i>
+                                    <span>Phone</span>
+                                    <strong>${userData.phone || 'Not provided'}</strong>
+                                </div>
+                                <div class="profile-row">
+                                    <i class="fas fa-tag"></i>
+                                    <span>Role</span>
+                                    <strong class="role-badge role-${userData.role}">${userData.role}</strong>
+                                </div>
+                                <div class="profile-row">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Member since</span>
+                                    <strong>${userData.createdAt ? new Date(userData.createdAt.toDate()).toLocaleDateString() : 'N/A'}</strong>
+                                </div>
+                            </div>
+                            <div class="profile-footer">
+                                <button onclick="closeProfileModal()" class="btn-close">Close</button>
+                                <button onclick="logout()" class="btn-logout">Sign Out</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Add modal styles
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .profile-modal {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: rgba(0,0,0,0.8);
+                            backdrop-filter: blur(5px);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 10000;
+                            animation: fadeIn 0.3s;
+                        }
+                        .profile-content {
+                            background: white;
+                            border-radius: 30px;
+                            max-width: 450px;
+                            width: 90%;
+                            overflow: hidden;
+                            animation: slideUp 0.3s;
+                        }
+                        .profile-header {
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            color: white;
+                            padding: 40px;
+                            text-align: center;
+                        }
+                        .profile-avatar-large {
+                            width: 80px;
+                            height: 80px;
+                            background: white;
+                            color: #667eea;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 32px;
+                            font-weight: 700;
+                            margin: 0 auto 20px;
+                            border: 4px solid white;
+                        }
+                        .profile-body {
+                            padding: 30px;
+                        }
+                        .profile-row {
+                            display: flex;
+                            align-items: center;
+                            padding: 12px 0;
+                            border-bottom: 1px solid #e2e8f0;
+                        }
+                        .profile-row i {
+                            width: 30px;
+                            color: #667eea;
+                        }
+                        .profile-row span {
+                            width: 120px;
+                            color: #64748b;
+                        }
+                        .profile-row strong {
+                            flex: 1;
+                            font-weight: 600;
+                        }
+                        .profile-footer {
+                            padding: 20px 30px;
+                            border-top: 1px solid #e2e8f0;
+                            display: flex;
+                            gap: 10px;
+                        }
+                        .btn-close, .btn-logout {
+                            flex: 1;
+                            padding: 12px;
+                            border: none;
+                            border-radius: 10px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s;
+                        }
+                        .btn-close {
+                            background: #e2e8f0;
+                            color: #1e293b;
+                        }
+                        .btn-logout {
+                            background: #ef4444;
+                            color: white;
+                        }
+                        .btn-close:hover, .btn-logout:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            });
         }
         
-        @media (max-width: 768px) {
-            .user-email {
-                margin: 10px 0;
-                display: inline-block;
-            }
+        function closeProfileModal() {
+            const modal = document.querySelector('.profile-modal');
+            if (modal) modal.remove();
         }
-    </style>
+        
+        // Listen for auth state changes
+        firebase.auth().onAuthStateChanged((user) => {
+            updateUserMenu(user);
+        });
+    </script>
     
     <section class="page-header">
         <div class="container">
