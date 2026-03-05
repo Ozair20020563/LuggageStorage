@@ -625,7 +625,7 @@
                             </td>
                             <td>${joinedDate}</td>
                             <td>
-                                <button class="action-btn btn-view" onclick="viewUser('${doc.id}')">
+                                <button class="action-btn btn-view" onclick="showUserDetails('${doc.id}', '${user.name || ''}', '${user.email}', '${user.role}', '${user.phone || ''}')">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button class="action-btn btn-delete" onclick="deleteUser('${doc.id}')">
@@ -706,33 +706,339 @@
         }
 
         // User actions
-        function viewUser(userId) {
-            window.location.href = `/LuggageStorage/dashboard/user-details.html?id=${userId}`;
+        function showUserDetails(userId, userName, userEmail, userRole, userPhone) {
+            // Create a professional modal
+            const modal = document.createElement('div');
+            modal.className = 'user-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-user-circle"></i> User Details</h2>
+                        <button onclick="closeModal()" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="detail-row">
+                            <i class="fas fa-user"></i>
+                            <span class="detail-label">Name:</span>
+                            <span class="detail-value">${userName || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-envelope"></i>
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">${userEmail}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-tag"></i>
+                            <span class="detail-label">Role:</span>
+                            <span class="detail-value role-badge role-${userRole}">${userRole}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-phone"></i>
+                            <span class="detail-label">Phone:</span>
+                            <span class="detail-value">${userPhone || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-id-card"></i>
+                            <span class="detail-label">User ID:</span>
+                            <span class="detail-value">${userId}</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="closeModal()" class="btn-close">Close</button>
+                        <button onclick="deleteUser('${userId}', '${userEmail}')" class="btn-delete-modal">
+                            <i class="fas fa-trash"></i> Delete User
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add modal styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .user-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.8);
+                    backdrop-filter: blur(5px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    animation: fadeIn 0.3s;
+                }
+                .modal-content {
+                    background: white;
+                    border-radius: 30px;
+                    max-width: 500px;
+                    width: 90%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    animation: slideUp 0.3s;
+                }
+                .modal-header {
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    padding: 30px;
+                    border-radius: 30px 30px 0 0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .modal-header h2 {
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .close-btn {
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 30px;
+                    cursor: pointer;
+                }
+                .modal-body {
+                    padding: 30px;
+                }
+                .detail-row {
+                    display: flex;
+                    align-items: center;
+                    padding: 12px 0;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                .detail-row i {
+                    width: 30px;
+                    color: #667eea;
+                }
+                .detail-label {
+                    width: 100px;
+                    color: #64748b;
+                }
+                .detail-value {
+                    flex: 1;
+                    font-weight: 500;
+                }
+                .modal-footer {
+                    padding: 20px 30px;
+                    border-top: 1px solid #e2e8f0;
+                    display: flex;
+                    gap: 10px;
+                }
+                .btn-close {
+                    flex: 1;
+                    padding: 12px;
+                    background: #e2e8f0;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    cursor: pointer;
+                }
+                .btn-delete-modal {
+                    flex: 1;
+                    padding: 12px;
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    cursor: pointer;
+                }
+                .btn-delete-modal:hover {
+                    background: #dc2626;
+                }
+            `;
+            document.head.appendChild(style);
         }
 
-        async function deleteUser(userId) {
-            if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        function closeModal() {
+            const modal = document.querySelector('.user-modal');
+            if (modal) modal.remove();
+        }
+
+        async function deleteUser(userId, userEmail) {
+            // Don't allow deleting yourself
+            if (userId === currentUser?.uid) {
+                showProfessionalConfirm(
+                    '⚠️ Cannot Delete Yourself',
+                    'You cannot delete your own admin account. Please ask another admin to do this.',
+                    'info'
+                );
                 return;
             }
             
-            try {
-                showNotification('Deleting user...', 'info');
-                
-                // Delete from Firestore
-                await db.collection('users').doc(userId).delete();
-                
-                // Note: You can't delete from Auth via client-side for security
-                // You'll need to do this manually in Firebase Console
-                
-                showNotification('User deleted from database. To completely remove, delete from Firebase Console.', 'success');
-                
-                // Reload data
-                loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                showNotification(error.message, 'error');
-            }
+            // Show professional confirmation modal
+            showProfessionalConfirm(
+                'Delete User Account',
+                `Are you sure you want to delete ${userEmail || 'this user'}? This action cannot be undone.`,
+                'warning',
+                async () => {
+                    try {
+                        // Show loading
+                        showNotification('Deleting user...', 'info');
+                        
+                        // Delete user data from Firestore
+                        await db.collection('users').doc(userId).delete();
+                        
+                        // Delete user's bookings
+                        const bookings = await db.collection('bookings')
+                            .where('userId', '==', userId)
+                            .get();
+                        
+                        const batch = db.batch();
+                        bookings.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
+                        await batch.commit();
+                        
+                        showNotification('✅ User deleted successfully from database', 'success');
+                        
+                        // Reload the data
+                        loadDashboardData();
+                        
+                    } catch (error) {
+                        console.error('Delete error:', error);
+                        
+                        if (error.code === 'permission-denied') {
+                            showProfessionalConfirm(
+                                '❌ Permission Denied',
+                                'You need additional permissions to delete this user. Please use Firebase Console for complete deletion.',
+                                'error'
+                            );
+                        } else {
+                            showNotification('Error: ' + error.message, 'error');
+                        }
+                    }
+                }
+            );
+        }
+
+        // Professional confirmation modal
+        function showProfessionalConfirm(title, message, type, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'confirm-modal';
+            
+            const colors = {
+                warning: { bg: '#fef2f2', icon: '⚠️', color: '#ef4444', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
+                error: { bg: '#fef2f2', icon: '❌', color: '#ef4444', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
+                info: { bg: '#f0f9ff', icon: 'ℹ️', color: '#3b82f6', gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)' },
+                success: { bg: '#f0fdf4', icon: '✅', color: '#10b981', gradient: 'linear-gradient(135deg, #10b981, #059669)' }
+            };
+            
+            const selected = colors[type] || colors.warning;
+            
+            modal.innerHTML = `
+                <div class="confirm-content">
+                    <div class="confirm-header" style="background: ${selected.gradient}">
+                        <div class="confirm-icon">${selected.icon}</div>
+                        <h3>${title}</h3>
+                    </div>
+                    <div class="confirm-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="confirm-footer">
+                        ${onConfirm ? `
+                            <button class="btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+                            <button class="btn-confirm" style="background: ${selected.color}" onclick="executeDelete()">Yes, Delete</button>
+                        ` : `
+                            <button class="btn-ok" onclick="closeConfirmModal()" style="background: ${selected.color}">OK</button>
+                        `}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Store the confirm function globally
+            window.executeDelete = () => {
+                closeConfirmModal();
+                if (onConfirm) onConfirm();
+            };
+            
+            // Add styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .confirm-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.8);
+                    backdrop-filter: blur(5px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    animation: fadeIn 0.3s;
+                }
+                .confirm-content {
+                    background: white;
+                    border-radius: 30px;
+                    max-width: 450px;
+                    width: 90%;
+                    overflow: hidden;
+                    animation: slideUp 0.3s;
+                }
+                .confirm-header {
+                    padding: 30px;
+                    text-align: center;
+                    color: white;
+                }
+                .confirm-icon {
+                    font-size: 48px;
+                    margin-bottom: 15px;
+                }
+                .confirm-header h3 {
+                    margin: 0;
+                    font-size: 24px;
+                }
+                .confirm-body {
+                    padding: 30px;
+                    text-align: center;
+                    color: #1e293b;
+                }
+                .confirm-footer {
+                    padding: 20px 30px;
+                    border-top: 1px solid #e2e8f0;
+                    display: flex;
+                    gap: 10px;
+                }
+                .btn-cancel, .btn-confirm, .btn-ok {
+                    flex: 1;
+                    padding: 12px;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                .btn-cancel {
+                    background: #e2e8f0;
+                    color: #1e293b;
+                }
+                .btn-cancel:hover, .btn-confirm:hover, .btn-ok:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                }
+                .btn-confirm, .btn-ok {
+                    color: white;
+                }
+                @keyframes slideUp {
+                    from { transform: translateY(50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function closeConfirmModal() {
+            const modal = document.querySelector('.confirm-modal');
+            if (modal) modal.remove();
         }
 
         // Logout function
