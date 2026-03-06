@@ -1,0 +1,24 @@
+# Node modules
+node_modules/
+npm-debug.log
+package-lock.json
+package.json
+
+# Firebase service account keys (KEEP THESE SECRET!)
+*-key.json
+service-account-key.json
+serviceAccountKey.json
+
+# Admin scripts
+make-admin.js
+quick-admin.js
+setAdmin.js
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
