@@ -701,7 +701,7 @@
 
         /* Service Fee Notice */
         .fee-notice {
-            background: #fef3c7;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
             border: 2px solid #f59e0b;
             border-radius: 15px;
             padding: 15px;
@@ -725,9 +725,15 @@
             font-size: 18px;
         }
 
-        .fee-notice .fee-text small {
-            color: #64748b;
-            font-size: 12px;
+        .fee-notice .fee-text .price-breakdown {
+            font-size: 13px;
+            color: #1e293b;
+            margin-top: 5px;
+        }
+
+        .fee-notice .fee-text .price-breakdown span {
+            font-weight: 600;
+            color: #667eea;
         }
 
         /* Summary Box */
@@ -1499,7 +1505,7 @@
                         </div>
                         <div class="location-details">
                             <span><i class="fas fa-clock"></i> 24/7</span>
-                            <span><i class="fas fa-tag"></i> $2.50 service fee/bag</span>
+                            <span><i class="fas fa-tag"></i> From $5/day + $2.50 service fee</span>
                             <span><i class="fas fa-star" style="color: #ffd700;"></i> New Location</span>
                         </div>
                     </div>
@@ -1592,6 +1598,15 @@
                     <h2>Tell us about your bags</h2>
                     
                     <div class="form-group">
+                        <label>Bag size</label>
+                        <select class="form-control" id="bagSize" onchange="updateSummary()">
+                            <option value="small">Small (backpack, purse) - $5.00/day</option>
+                            <option value="medium" selected>Medium (suitcase) - $7.00/day</option>
+                            <option value="large">Large (oversized) - $10.00/day</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label>Number of bags</label>
                         <div class="bag-counter">
                             <button class="counter-btn" onclick="changeBagCount(-1)">-</button>
@@ -1604,8 +1619,10 @@
                     <div class="fee-notice">
                         <i class="fas fa-info-circle"></i>
                         <div class="fee-text">
-                            <strong>$2.50 service fee per bag</strong>
-                            <small>Pay in store when you drop off</small>
+                            <strong>+ $2.50 service fee per bag</strong>
+                            <div class="price-breakdown">
+                                Total per day = Bag price <span id="bagPriceDisplay">$7.00</span> + $2.50 fee = <span id="totalPerDayDisplay">$9.50</span>
+                            </div>
                         </div>
                     </div>
 
@@ -1620,15 +1637,23 @@
                             <span id="summaryDuration">0 days</span>
                         </div>
                         <div class="summary-row">
+                            <span>Bag size:</span>
+                            <span id="summaryBagSize">Medium ($7.00/day)</span>
+                        </div>
+                        <div class="summary-row">
                             <span>Number of bags:</span>
                             <span id="summaryBags">1 bag</span>
                         </div>
                         <div class="summary-row">
-                            <span>Service fee per bag:</span>
-                            <span>$2.50</span>
+                            <span>Storage cost:</span>
+                            <span id="storageCost">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Service fee ($2.50/bag):</span>
+                            <span id="serviceFeeTotal">$2.50</span>
                         </div>
                         <div class="summary-total">
-                            Total to pay in store: <span id="totalPrice">$2.50</span>
+                            Total to pay: <span id="totalPrice">$2.50</span>
                         </div>
                     </div>
 
@@ -1684,7 +1709,7 @@
                                 </div>
                             </label>
 
-                            <!-- NEW: Pay in Store Option -->
+                            <!-- Pay in Store Option -->
                             <label class="payment-option">
                                 <input type="radio" name="payment" value="store" checked onclick="selectPayment('store')">
                                 <div class="payment-card">
@@ -1766,6 +1791,11 @@
                         <i class="fas fa-suitcase"></i>
                         <span>Bags:</span>
                         <strong id="modalBags"></strong>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-tag"></i>
+                        <span>Bag size:</span>
+                        <strong id="modalBagSize">Medium</strong>
                     </div>
                     <div class="detail-row">
                         <i class="fas fa-dollar-sign"></i>
@@ -1882,10 +1912,18 @@
         let currentStep = 1;
         let selectedLocation = null;
         let bagCount = 1;
+        let currentBagSize = 'medium';
         const serviceFeePerBag = 2.50;
         let currentUser = null;
         let activeDateTimeField = null;
         let currentDate = new Date();
+
+        // Bag price mapping
+        const bagPrices = {
+            small: 5.00,
+            medium: 7.00,
+            large: 10.00
+        };
 
         // Check auth state and update user menu
         firebase.auth().onAuthStateChanged((user) => {
@@ -2260,9 +2298,43 @@
             updateTotal();
         }
 
+        // Update bag size display
+        function updateBagSizeDisplay() {
+            const size = document.getElementById('bagSize').value;
+            const price = bagPrices[size];
+            const sizeNames = { small: 'Small', medium: 'Medium', large: 'Large' };
+            
+            document.getElementById('summaryBagSize').textContent = `${sizeNames[size]} ($${price.toFixed(2)}/day)`;
+            document.getElementById('bagPriceDisplay').textContent = `$${price.toFixed(2)}`;
+            
+            const totalPerDay = price + serviceFeePerBag;
+            document.getElementById('totalPerDayDisplay').textContent = `$${totalPerDay.toFixed(2)}`;
+        }
+
         // Update total price
         function updateTotal() {
-            const total = bagCount * serviceFeePerBag;
+            const dropoff = new Date(document.getElementById('dropoffDate').value);
+            const pickup = new Date(document.getElementById('pickupDate').value);
+            const days = Math.ceil((pickup - dropoff) / (1000 * 60 * 60 * 24));
+            
+            const size = document.getElementById('bagSize').value;
+            const bagPrice = bagPrices[size];
+            
+            // Update bag size display
+            updateBagSizeDisplay();
+            
+            // Calculate storage cost (bag price × days × bags)
+            const storageCost = bagPrice * days * bagCount;
+            
+            // Calculate service fee total ($2.50 × bags × days)
+            const serviceFeeTotal = serviceFeePerBag * bagCount * days;
+            
+            // Total = storage cost + service fee
+            const total = storageCost + serviceFeeTotal;
+            
+            // Update displays
+            document.getElementById('storageCost').textContent = '$' + storageCost.toFixed(2);
+            document.getElementById('serviceFeeTotal').textContent = '$' + serviceFeeTotal.toFixed(2);
             document.getElementById('totalPrice').textContent = '$' + total.toFixed(2);
         }
 
@@ -2300,6 +2372,7 @@
             const pickupDate = document.getElementById('pickupDate').value;
             const pickupTime = document.getElementById('pickupTime').value;
             const bags = document.getElementById('bagCount').textContent;
+            const bagSize = document.getElementById('bagSize').value;
             const total = document.getElementById('totalPrice').textContent;
             
             // Get selected payment method
@@ -2327,7 +2400,9 @@
             const accessCode = Math.floor(1000 + Math.random() * 9000) + ' ' + 
                               Math.floor(1000 + Math.random() * 9000);
             
-            const qrData = `Booking: ${bookingId}\nCode: ${accessCode.replace(' ', '')}\nStore: TSG City Centre\n69-75 King St Sydney\nTotal: $${(bagCount * serviceFeePerBag).toFixed(2)}`;
+            const sizeNames = { small: 'Small', medium: 'Medium', large: 'Large' };
+            
+            const qrData = `Booking: ${bookingId}\nStore: TSG City Centre\n69-75 King St Sydney\nBags: ${bags} (${sizeNames[bagSize]})\nCode: ${accessCode.replace(' ', '')}\nTotal: ${total}`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
             
             const bookingData = {
@@ -2340,6 +2415,7 @@
                 pickup: pickupDate,
                 pickupTime: pickupTime,
                 bags: bags,
+                bagSize: sizeNames[bagSize],
                 total: total,
                 paymentMethod: paymentMethod,
                 serviceFee: serviceFeePerBag,
@@ -2367,6 +2443,7 @@
             document.getElementById('modalDropoff').textContent = data.dropoff + ' at ' + data.dropoffTime;
             document.getElementById('modalPickup').textContent = data.pickup + ' at ' + data.pickupTime;
             document.getElementById('modalBags').textContent = data.bags + ' bag' + (data.bags > 1 ? 's' : '');
+            document.getElementById('modalBagSize').textContent = data.bagSize;
             document.getElementById('modalTotal').textContent = data.total;
             document.getElementById('modalEmail').textContent = data.email;
             document.getElementById('accessCode').textContent = data.accessCode;
@@ -2434,6 +2511,7 @@
                 dropoff_date: bookingData.dropoff + ' at ' + bookingData.dropoffTime,
                 pickup_date: bookingData.pickup + ' at ' + bookingData.pickupTime,
                 bags: bookingData.bags,
+                bag_size: bookingData.bagSize,
                 total: bookingData.total,
                 payment_method: bookingData.paymentMethod === 'store' ? 'Pay in store' : 'Online payment',
                 access_code: bookingData.accessCode,
@@ -2486,6 +2564,7 @@
                 pickup: bookingData.pickup,
                 pickupTime: bookingData.pickupTime,
                 bags: bookingData.bags,
+                bagSize: bookingData.bagSize,
                 total: bookingData.total,
                 paymentMethod: bookingData.paymentMethod,
                 serviceFee: bookingData.serviceFee,
@@ -2501,11 +2580,12 @@
                 });
         }
 
-        // Event listeners for updates
+        // Event listeners
         document.getElementById('dropoffDate').addEventListener('change', updateDuration);
         document.getElementById('pickupDate').addEventListener('change', updateDuration);
         document.getElementById('dropoffTime').addEventListener('change', updateDuration);
         document.getElementById('pickupTime').addEventListener('change', updateDuration);
+        document.getElementById('bagSize').addEventListener('change', updateSummary);
     </script>
 </body>
 </html>
