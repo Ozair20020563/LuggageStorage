@@ -2022,7 +2022,10 @@
             updateTimeDisplay('dropoff', '09:00');
             updateTimeDisplay('pickup', '17:00');
             
+            // Update duration and price immediately
             updateDuration();
+            
+            console.log("✅ Default values set - price calculated automatically");
         }
 
         function updateDateDisplay(type, dateStr) {
@@ -2287,7 +2290,7 @@
             
             document.getElementById('duration').textContent = days + ' days';
             document.getElementById('summaryDuration').textContent = days + ' days';
-            updateTotal();
+            updateTotal(); // This ensures price updates when duration changes
         }
 
         // Change bag count
@@ -2336,6 +2339,15 @@
             document.getElementById('storageCost').textContent = '$' + storageCost.toFixed(2);
             document.getElementById('serviceFeeTotal').textContent = '$' + serviceFeeTotal.toFixed(2);
             document.getElementById('totalPrice').textContent = '$' + total.toFixed(2);
+            
+            console.log('Price calculated:', {
+                days: days,
+                bagPrice: bagPrice,
+                bags: bagCount,
+                storageCost: storageCost,
+                serviceFee: serviceFeeTotal,
+                total: total
+            });
         }
 
         // Update summary
