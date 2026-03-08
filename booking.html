@@ -18,6 +18,7 @@
     <script src="/LuggageStorage/js/firebase-config.js"></script>
     
     <style>
+        /* All your existing styles remain exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -2374,7 +2375,7 @@
                         .replace(/[<>]/g, '');
         }
 
-        // Complete booking
+        // Complete booking - ENHANCED VERSION
         function completeBooking() {
             const name = sanitizeInput(document.getElementById('fullName').value);
             const email = (document.getElementById('email').value || '').trim();
@@ -2383,7 +2384,7 @@
             const dropoffTime = document.getElementById('dropoffTime').value;
             const pickupDate = document.getElementById('pickupDate').value;
             const pickupTime = document.getElementById('pickupTime').value;
-            const bags = document.getElementById('bagCount').textContent;
+            const bags = parseInt(document.getElementById('bagCount').textContent);
             const bagSize = document.getElementById('bagSize').value;
             const total = document.getElementById('totalPrice').textContent;
             
@@ -2417,34 +2418,93 @@
             const qrData = `Booking: ${bookingId}\nStore: TSG City Centre\n69-75 King St Sydney\nBags: ${bags} (${sizeNames[bagSize]})\nCode: ${accessCode.replace(' ', '')}\nTotal: ${total}`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
             
+            // Calculate numeric total for storage
+            const totalNumeric = parseFloat(total.replace('$', ''));
+            
             const bookingData = {
+                // Customer information
+                customerName: name,
+                customerEmail: email,
+                customerPhone: phone,
+                
+                // Booking details
+                bookingId: bookingId,
+                dropoffDate: dropoffDate,
+                dropoffTime: dropoffTime,
+                pickupDate: pickupDate,
+                pickupTime: pickupTime,
+                numberOfBags: bags,
+                bagSize: sizeNames[bagSize],
+                bagSizeValue: bagSize,
+                
+                // Payment information
+                totalDisplay: total,
+                totalValue: totalNumeric,
+                paymentMethod: paymentMethod,
+                serviceFeePerBag: serviceFeePerBag,
+                
+                // Security
+                qrCode: qrUrl,
+                accessCode: accessCode,
+                status: 'active',
+                
+                // Metadata
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAtISO: new Date().toISOString(),
+                
+                // For backward compatibility
                 name: name,
                 email: email,
                 phone: phone,
-                bookingId: bookingId,
                 dropoff: dropoffDate,
-                dropoffTime: dropoffTime,
                 pickup: pickupDate,
-                pickupTime: pickupTime,
-                bags: bags,
-                bagSize: sizeNames[bagSize],
+                bags: bags.toString(),
                 total: total,
-                paymentMethod: paymentMethod,
-                serviceFee: serviceFeePerBag,
-                qrCode: qrUrl,
-                accessCode: accessCode,
-                timestamp: new Date().toISOString()
+                serviceFee: serviceFeePerBag
             };
             
+            // Save to localStorage as backup
             localStorage.setItem('lastBooking', JSON.stringify(bookingData));
+            
+            // Show confirmation modal immediately for better UX
             showConfirmationModal(bookingData);
+            
+            // Send email (non-blocking)
             sendBookingEmail(bookingData);
             
-            if (currentUser) {
-                saveBookingToFirestore(bookingData, currentUser.uid).catch(err => {
-                    console.warn('Firestore save failed:', err);
+            // Save to Firestore - ENHANCED WITH BETTER ERROR HANDLING
+            console.log("Attempting to save booking to Firestore...");
+            
+            // Show a notification that we're saving
+            showNotification('Saving your booking...', 'info');
+            
+            // Always try to save to Firestore, regardless of login status
+            saveBookingToFirestore(bookingData, currentUser ? currentUser.uid : null)
+                .then((docRef) => {
+                    console.log("✅ Booking saved to Firestore with ID:", docRef.id);
+                    showNotification('Booking saved successfully!', 'success');
+                    
+                    // Store the Firestore ID in localStorage for reference
+                    const savedBooking = JSON.parse(localStorage.getItem('lastBooking') || '{}');
+                    savedBooking.firestoreId = docRef.id;
+                    localStorage.setItem('lastBooking', JSON.stringify(savedBooking));
+                })
+                .catch(err => {
+                    console.error("❌ Firestore save failed:", err);
+                    
+                    // Show more specific error message
+                    let errorMsg = 'Booking confirmed but not saved to cloud. ';
+                    if (err.code === 'permission-denied') {
+                        errorMsg += 'Permission error. Please contact support.';
+                    } else if (err.message) {
+                        errorMsg += err.message;
+                    }
+                    
+                    showNotification(errorMsg, 'warning');
+                    
+                    // Still save backup locally
+                    saveBookingBackup(bookingData);
                 });
-            }
             
             showNotification('🎉 Booking confirmed! Check your email.', 'success');
         }
@@ -2452,12 +2512,12 @@
         // Show confirmation modal
         function showConfirmationModal(data) {
             document.getElementById('modalBookingId').textContent = data.bookingId;
-            document.getElementById('modalDropoff').textContent = data.dropoff + ' at ' + data.dropoffTime;
-            document.getElementById('modalPickup').textContent = data.pickup + ' at ' + data.pickupTime;
-            document.getElementById('modalBags').textContent = data.bags + ' bag' + (data.bags > 1 ? 's' : '');
-            document.getElementById('modalBagSize').textContent = data.bagSize;
-            document.getElementById('modalTotal').textContent = data.total;
-            document.getElementById('modalEmail').textContent = data.email;
+            document.getElementById('modalDropoff').textContent = (data.dropoffDate || data.dropoff) + ' at ' + (data.dropoffTime || '');
+            document.getElementById('modalPickup').textContent = (data.pickupDate || data.pickup) + ' at ' + (data.pickupTime || '');
+            document.getElementById('modalBags').textContent = (data.numberOfBags || data.bags) + ' bag' + ((data.numberOfBags || data.bags) > 1 ? 's' : '');
+            document.getElementById('modalBagSize').textContent = data.bagSize || 'Medium';
+            document.getElementById('modalTotal').textContent = data.totalDisplay || data.total;
+            document.getElementById('modalEmail').textContent = data.customerEmail || data.email;
             document.getElementById('accessCode').textContent = data.accessCode;
             document.getElementById('modalPayment').textContent = data.paymentMethod === 'store' ? 'Pay in store' : 'Online payment';
             document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
@@ -2514,17 +2574,17 @@
 
         // Email sending function
         function sendBookingEmail(bookingData) {
-            console.log("📧 Preparing email for:", bookingData.email);
+            console.log("📧 Preparing email for:", bookingData.customerEmail || bookingData.email);
             
             const templateParams = {
-                to_name: bookingData.name,
-                to_email: bookingData.email,
+                to_name: bookingData.customerName || bookingData.name,
+                to_email: bookingData.customerEmail || bookingData.email,
                 booking_id: bookingData.bookingId,
-                dropoff_date: bookingData.dropoff + ' at ' + bookingData.dropoffTime,
-                pickup_date: bookingData.pickup + ' at ' + bookingData.pickupTime,
-                bags: bookingData.bags,
-                bag_size: bookingData.bagSize,
-                total: bookingData.total,
+                dropoff_date: (bookingData.dropoffDate || bookingData.dropoff) + ' at ' + (bookingData.dropoffTime || ''),
+                pickup_date: (bookingData.pickupDate || bookingData.pickup) + ' at ' + (bookingData.pickupTime || ''),
+                bags: bookingData.numberOfBags || bookingData.bags,
+                bag_size: bookingData.bagSize || 'Medium',
+                total: bookingData.totalDisplay || bookingData.total,
                 payment_method: bookingData.paymentMethod === 'store' ? 'Pay in store' : 'Online payment',
                 access_code: bookingData.accessCode,
                 map_link: "https://maps.google.com/?q=69-75+King+St+Sydney"
@@ -2534,8 +2594,8 @@
             
             emailjs.send('service_67vozlf', 'template_0m6lqne', templateParams)
                 .then(function(response) {
-                    console.log("✅ Email sent to:", bookingData.email);
-                    showNotification('✓ Email sent to ' + bookingData.email, 'success');
+                    console.log("✅ Email sent to:", templateParams.to_email);
+                    showNotification('✓ Email sent to ' + templateParams.to_email, 'success');
                 })
                 .catch(function(error) {
                     console.error("❌ Email failed:", error);
@@ -2559,36 +2619,67 @@
             showNotification('📥 Booking saved to your device', 'success');
         }
 
-        // Save to Firestore
+        // Save to Firestore - ENHANCED VERSION
         function saveBookingToFirestore(bookingData, userId) {
             if (typeof db === 'undefined') {
+                console.error('Firestore not initialized');
                 return Promise.reject(new Error('Firestore not initialized'));
             }
 
-            const payload = {
+            // Create a clean, well-structured booking object for Firestore
+            const bookingForFirestore = {
+                // User association
                 userId: userId || null,
+                
+                // Core booking information
                 bookingId: bookingData.bookingId,
-                name: bookingData.name,
-                email: bookingData.email,
-                phone: bookingData.phone,
-                dropoff: bookingData.dropoff,
-                dropoffTime: bookingData.dropoffTime,
-                pickup: bookingData.pickup,
-                pickupTime: bookingData.pickupTime,
-                bags: bookingData.bags,
-                bagSize: bookingData.bagSize,
-                total: bookingData.total,
-                paymentMethod: bookingData.paymentMethod,
-                serviceFee: bookingData.serviceFee,
-                accessCode: bookingData.accessCode,
-                status: 'active',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                status: bookingData.status || 'active',
+                
+                // Customer details
+                customerName: bookingData.customerName || bookingData.name,
+                customerEmail: bookingData.customerEmail || bookingData.email,
+                customerPhone: bookingData.customerPhone || bookingData.phone,
+                
+                // Date and time
+                dropoffDate: bookingData.dropoffDate || bookingData.dropoff,
+                dropoffTime: bookingData.dropoffTime || '',
+                pickupDate: bookingData.pickupDate || bookingData.pickup,
+                pickupTime: bookingData.pickupTime || '',
+                
+                // Bag details
+                numberOfBags: bookingData.numberOfBags || parseInt(bookingData.bags) || 1,
+                bagSize: bookingData.bagSize || 'Medium',
+                bagSizeValue: bookingData.bagSizeValue || 'medium',
+                
+                // Payment
+                totalDisplay: bookingData.totalDisplay || bookingData.total,
+                totalValue: bookingData.totalValue || parseFloat((bookingData.total || '$0').replace('$', '')),
+                paymentMethod: bookingData.paymentMethod || 'store',
+                serviceFeePerBag: bookingData.serviceFeePerBag || 2.50,
+                
+                // Security
+                qrCode: bookingData.qrCode || '',
+                accessCode: bookingData.accessCode || '',
+                
+                // Metadata
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAtISO: new Date().toISOString(),
+                
+                // Store location (for future multi-store support)
+                storeLocation: 'Sydney CBD',
+                storeAddress: '69-75 King St, Sydney NSW 2000'
             };
 
-            return db.collection('bookings').add(payload)
-                .then(ref => {
-                    console.log('Firestore: booking saved with id', ref.id);
-                    return ref;
+            console.log("Saving to Firestore:", bookingForFirestore);
+
+            return db.collection('bookings').add(bookingForFirestore)
+                .then((docRef) => {
+                    console.log('✅ Firestore: booking saved with id', docRef.id);
+                    return docRef;
+                })
+                .catch((err) => {
+                    console.error('❌ Firestore save failed:', err);
+                    throw err;
                 });
         }
 
