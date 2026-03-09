@@ -874,26 +874,165 @@
 
         async function loadPartnerRequests() {
             try {
-                // Query for pending partner requests
-                // This assumes you have a 'partnerRequests' collection
-                // If not, we'll just show a message
-                
+                // First, let's find all users with pending_partner role
+                const usersSnapshot = await db.collection('users')
+                    .where('role', '==', 'pending_partner')
+                    .get();
+
                 const requestsContainer = document.getElementById('partnerRequestsList');
                 
-                // For now, show empty state with instructions
-                requestsContainer.innerHTML = `
+                if (usersSnapshot.empty) {
+                    requestsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-handshake"></i>
+                            <p>No pending partner requests</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                
+                // For each pending user, try to find their application
+                for (const doc of usersSnapshot.docs) {
+                    const user = doc.data();
+                    const userId = doc.id;
+                    
+                    // Try to find the partner application for this user
+                    const appSnapshot = await db.collection('partnerApplications')
+                        .where('userId', '==', userId)
+                        .limit(1)
+                        .get();
+                    
+                    let application = {};
+                    if (!appSnapshot.empty) {
+                        application = appSnapshot.docs[0].data();
+                    }
+                    
+                    // Get user's name from either source
+                    const userName = user.name || application.applicantName || 'N/A';
+                    const userEmail = user.email || application.applicantEmail || 'N/A';
+                    const userPhone = user.phone || application.applicantPhone || 'N/A';
+                    
+                    // Get store details
+                    const storeName = application.storeName || 'Pending';
+                    const storeAddress = application.storeAddress || 'Pending';
+                    const openTime = application.openTime || '09:00';
+                    const closeTime = application.closeTime || '17:00';
+                    const abn = application.abn || '';
+                    
+                    html += `
+                        <div class="request-card">
+                            <div class="request-info">
+                                <h3>${storeName}</h3>
+                                <p><i class="fas fa-user"></i> <strong>Applicant:</strong> ${userName}</p>
+                                <p><i class="fas fa-envelope"></i> ${userEmail}</p>
+                                <p><i class="fas fa-phone"></i> ${userPhone}</p>
+                                <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> ${storeAddress}</p>
+                                <p><i class="fas fa-clock"></i> <strong>Hours:</strong> ${openTime} - ${closeTime}</p>
+                                ${abn ? `<p><i class="fas fa-tag"></i> <strong>ABN:</strong> ${abn}</p>` : ''}
+                            </div>
+                            <div class="request-actions">
+                                <button class="approve-btn" onclick="approvePartner('${userId}')">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="reject-btn" onclick="rejectPartner('${userId}')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                requestsContainer.innerHTML = html || `
                     <div class="empty-state">
                         <i class="fas fa-handshake"></i>
-                        <h3>Partner Requests</h3>
-                        <p>When partners sign up, their requests will appear here.</p>
-                        <p style="margin-top: 20px; font-size: 14px; color: #667eea;">
-                            Partners can sign up at: <strong>/LuggageStorage/partner.html</strong>
-                        </p>
+                        <p>No pending partner requests</p>
                     </div>
                 `;
-                
+
             } catch (error) {
                 console.error('Error loading partner requests:', error);
+                document.getElementById('partnerRequestsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading requests: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Approve partner function
+        async function approvePartner(userId) {
+            if (!confirm('Are you sure you want to approve this partner? They will be able to log in and access the partner dashboard.')) return;
+
+            try {
+                // Update user role to partner
+                await db.collection('users').doc(userId).update({
+                    role: 'partner',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Also update any partner application
+                const appSnapshot = await db.collection('partnerApplications')
+                    .where('userId', '==', userId)
+                    .get();
+                
+                if (!appSnapshot.empty) {
+                    const batch = db.batch();
+                    appSnapshot.forEach(doc => {
+                        batch.update(doc.ref, {
+                            status: 'approved',
+                            reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                    await batch.commit();
+                }
+
+                showNotification('Partner approved successfully! They can now log in.', 'success');
+                loadPartnerRequests(); // Reload the list
+                loadAllUsers(); // Also reload users list
+
+            } catch (error) {
+                console.error('Error approving partner:', error);
+                showNotification('Error approving partner: ' + error.message, 'error');
+            }
+        }
+
+        // Reject partner function
+        async function rejectPartner(userId) {
+            if (!confirm('Are you sure you want to reject this application? This action cannot be undone.')) return;
+
+            try {
+                // Update user role to rejected
+                await db.collection('users').doc(userId).update({
+                    role: 'rejected',
+                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update any partner application
+                const appSnapshot = await db.collection('partnerApplications')
+                    .where('userId', '==', userId)
+                    .get();
+                
+                if (!appSnapshot.empty) {
+                    const batch = db.batch();
+                    appSnapshot.forEach(doc => {
+                        batch.update(doc.ref, {
+                            status: 'rejected',
+                            reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                    await batch.commit();
+                }
+
+                showNotification('Application rejected', 'info');
+                loadPartnerRequests(); // Reload the list
+                loadAllUsers(); // Also reload users list
+
+            } catch (error) {
+                console.error('Error rejecting application:', error);
+                showNotification('Error rejecting application: ' + error.message, 'error');
             }
         }
 
