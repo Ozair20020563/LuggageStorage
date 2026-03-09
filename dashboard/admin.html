@@ -14,6 +14,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     
+    <!-- Your Firebase config -->
+    <script src="../js/firebase-config.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -129,36 +132,17 @@
             }
         }
 
-        .welcome-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            transform: rotate(45deg);
-            animation: shimmer 10s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: rotate(45deg) translateY(0); }
-            100% { transform: rotate(45deg) translateY(50%); }
-        }
-
         .welcome-card h1 {
             font-size: 36px;
             margin-bottom: 10px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            position: relative;
         }
 
         .welcome-card p {
             color: #64748b;
             font-size: 18px;
-            position: relative;
         }
 
         /* Stats Grid */
@@ -176,8 +160,6 @@
             padding: 25px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
             animation: fadeInUp 0.6s ease;
             animation-fill-mode: both;
         }
@@ -199,18 +181,8 @@
         }
 
         .stat-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.3);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
         }
 
         .stat-icon {
@@ -232,15 +204,49 @@
             font-weight: 500;
         }
 
-        /* Section Titles */
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        /* Bookings Section */
+        .bookings-section {
+            margin-top: 30px;
+        }
+
         .section-title {
             font-size: 24px;
-            margin: 40px 0 20px;
+            margin: 30px 0 20px;
             display: flex;
             align-items: center;
             gap: 10px;
             color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .section-title i {
@@ -249,7 +255,7 @@
             border-radius: 15px;
         }
 
-        /* Tables */
+        /* Table Styles */
         .table-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -257,7 +263,7 @@
             padding: 25px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
             overflow-x: auto;
-            animation: fadeIn 0.8s ease;
+            margin-top: 20px;
         }
 
         table {
@@ -280,18 +286,18 @@
             color: #1e293b;
         }
 
-        tr {
+        tbody tr {
+            cursor: pointer;
             transition: all 0.3s;
         }
 
         tbody tr:hover {
             background: #f0f9ff;
-            cursor: pointer;
             transform: scale(1.01);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
         }
 
-        .role-badge {
+        .status-badge {
             padding: 5px 12px;
             border-radius: 50px;
             font-size: 12px;
@@ -299,50 +305,190 @@
             display: inline-block;
         }
 
-        .role-admin {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        .role-partner {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-        }
-
-        .role-customer {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .action-btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 0 5px;
-        }
-
-        .btn-view {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-approve {
+        .status-active {
             background: #10b981;
             color: white;
         }
 
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        .status-completed {
+            background: #94a3b8;
+            color: white;
+        }
+
+        .status-cancelled {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 30px 30px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-row i {
+            width: 30px;
+            color: #667eea;
+        }
+
+        .detail-row .label {
+            width: 120px;
+            color: #64748b;
+        }
+
+        .detail-row .value {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .qr-large {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .qr-large img {
+            width: 200px;
+            height: 200px;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-close-modal {
+            flex: 1;
+            padding: 12px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-print {
+            flex: 1;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Partner Requests Section */
+        .partner-requests {
+            margin-top: 40px;
+        }
+
+        .request-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .request-info h3 {
+            margin-bottom: 5px;
+            color: #1e293b;
+        }
+
+        .request-info p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .approve-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .reject-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
         }
 
         /* Loading State */
@@ -372,6 +518,8 @@
             text-align: center;
             padding: 60px 20px;
             color: #64748b;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
         }
 
         .empty-state i {
@@ -407,32 +555,10 @@
             .user-email {
                 display: none;
             }
-        }
-
-        /* Notifications */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 50px;
-            background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 9999;
-            animation: slideInRight 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
+            
+            .request-card {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
@@ -446,100 +572,14 @@
                 <span>Luggage Storage</span>
             </a>
             
-            <div class="user-menu-container" id="userMenuContainer">
-                <!-- User menu will be populated here -->
+            <div class="user-menu">
+                <span class="user-email" id="userEmail">Loading...</span>
+                <button onclick="logout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </div>
     </nav>
-
-    <!-- User Menu Styles & JS (same as site-wide nav) -->
-    <style>
-        .user-menu-container { position: relative; margin-left: 10px; }
-        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:16px;cursor:pointer;transition:all .3s;border:2px solid transparent }
-        .user-avatar:hover { transform: scale(1.1); box-shadow:0 5px 15px rgba(102,126,234,0.3); border-color:white }
-        .user-dropdown{position:absolute;top:50px;right:0;background:white;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.2);min-width:250px;display:none;z-index:1000;animation:slideDown .3s ease;overflow:hidden}
-        .user-dropdown.show{display:block}
-        .dropdown-header{padding:20px;background:linear-gradient(135deg,#667eea,#764ba2);color:white}
-        .dropdown-header .user-name{font-weight:600;font-size:16px;margin-bottom:5px}
-        .dropdown-header .user-email-small{font-size:12px;opacity:.9}
-        .dropdown-menu{list-style:none;padding:10px 0}
-        .dropdown-menu li{padding:0}
-        .dropdown-menu a{display:flex;align-items:center;gap:10px;padding:12px 20px;color:#1e293b;text-decoration:none;transition:all .3s}
-        .dropdown-menu a:hover{background:#f0f9ff;color:#667eea}
-        .dropdown-menu i{width:20px;color:#667eea}
-        .dropdown-divider{height:1px;background:#e2e8f0;margin:8px 0}
-        .logout-item a{color:#ef4444}
-        .logout-item a:hover{background:#fef2f2;color:#dc2626}
-        .logout-item i{color:#ef4444}
-        @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-        @media (max-width:768px){.user-menu-container{margin:10px 0;width:100%}.user-avatar{width:35px;height:35px;font-size:14px}.user-dropdown{position:static;width:100%;margin-top:10px;box-shadow:none;border:1px solid #e2e8f0}}
-    </style>
-
-    <script>
-        function updateUserMenu(user){
-            const menuContainer = document.getElementById('userMenuContainer');
-            if(!menuContainer) return;
-            if(user){
-                db.collection('users').doc(user.uid).get().then(doc=>{
-                    if(doc.exists){
-                        const userData = doc.data();
-                        const name = userData.name || 'User';
-                        const email = user.email;
-                        const role = userData.role || 'customer';
-                        const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
-                        menuContainer.innerHTML = `
-                            <div class="user-avatar" onclick="toggleUserMenu()" title="${name}">${initials}</div>
-                            <div class="user-dropdown" id="userDropdown">
-                                <div class="dropdown-header">
-                                    <div class="user-name">${name}</div>
-                                    <div class="user-email-small">${email}</div>
-                                </div>
-                                <ul class="dropdown-menu">
-                                    <li><a href="/LuggageStorage/dashboard/${role}.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                                    <li><a href="#" onclick="showUserProfile()"><i class="fas fa-user-circle"></i> Profile</a></li>
-                                    <li><a href="/LuggageStorage/booking.html"><i class="fas fa-suitcase"></i> New Booking</a></li>
-                                    <li class="dropdown-divider"></li>
-                                    <li class="logout-item"><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign out</a></li>
-                                </ul>
-                            </div>
-                        `;
-                    }
-                });
-            } else {
-                menuContainer.innerHTML = `
-                    <li class="auth-links" style="display:flex;gap:10px;list-style:none;">
-                        <a href="/LuggageStorage/login.html" class="btn-outline">Login</a>
-                        <a href="/LuggageStorage/signup.html" class="btn-primary">Sign Up</a>
-                    </li>
-                `;
-            }
-        }
-        function toggleUserMenu(){const d=document.getElementById('userDropdown'); if(d) d.classList.toggle('show')}
-        document.addEventListener('click', function(e){ const dropdown = document.getElementById('userDropdown'); const avatar = document.querySelector('.user-avatar'); if(dropdown && avatar && !avatar.contains(e.target) && !dropdown.contains(e.target)){ dropdown.classList.remove('show'); } });
-        function showUserProfile(){ const user = firebase.auth().currentUser; if(!user) return; db.collection('users').doc(user.uid).get().then(doc=>{ if(doc.exists){ const userData = doc.data(); const modal = document.createElement('div'); modal.className='profile-modal'; modal.innerHTML = `
-                    <div class="profile-content">
-                        <div class="profile-header">
-                            <div class="profile-avatar-large">${userData.name.split(' ').map(n=>n[0]).join('').toUpperCase().substring(0,2)}</div>
-                            <h2>${userData.name}</h2>
-                            <p>${user.email}</p>
-                        </div>
-                        <div class="profile-body">
-                            <div class="profile-row"><i class="fas fa-envelope"></i><span>Email</span><strong>${user.email}</strong></div>
-                            <div class="profile-row"><i class="fas fa-phone"></i><span>Phone</span><strong>${userData.phone || 'Not provided'}</strong></div>
-                            <div class="profile-row"><i class="fas fa-tag"></i><span>Role</span><strong class="role-badge role-${userData.role}">${userData.role}</strong></div>
-                            <div class="profile-row"><i class="fas fa-calendar"></i><span>Member since</span><strong>${userData.createdAt ? new Date(userData.createdAt.toDate()).toLocaleDateString() : 'N/A'}</strong></div>
-                        </div>
-                        <div class="profile-footer"><button onclick="closeProfileModal()" class="btn-close">Close</button><button onclick="logout()" class="btn-logout">Sign Out</button></div>
-                    </div>
-                `; document.body.appendChild(modal); const style=document.createElement('style'); style.textContent = `
-                    .profile-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:10000;animation:fadeIn .3s}
-                    .profile-content{background:white;border-radius:30px;max-width:450px;width:90%;overflow:hidden;animation:slideUp .3s}
-                    .profile-header{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:40px;text-align:center}
-                    .profile-avatar-large{width:80px;height:80px;background:white;color:#667eea;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 20px;border:4px solid white}
-                    .profile-body{padding:30px}.profile-row{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid #e2e8f0}.profile-row i{width:30px;color:#667eea}.profile-row span{width:120px;color:#64748b}.profile-row strong{flex:1;font-weight:600}.profile-footer{padding:20px 30px;border-top:1px solid #e2e8f0;display:flex;gap:10px}.btn-close,.btn-logout{flex:1;padding:12px;border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:all .3s}.btn-close{background:#e2e8f0;color:#1e293b}.btn-logout{background:#ef4444;color:white}.btn-close:hover,.btn-logout:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}
-                    `; document.head.appendChild(style); } }); }
-        function closeProfileModal(){ const m=document.querySelector('.profile-modal'); if(m) m.remove(); }
-    </script>
 
     <!-- Dashboard -->
     <div class="dashboard">
@@ -550,7 +590,7 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="stats-grid">
+        <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-store"></i></div>
                 <div class="stat-number" id="totalPartners">0</div>
@@ -573,103 +613,106 @@
             </div>
         </div>
 
-        <!-- User Management Section -->
-        <h2 class="section-title">
-            <i class="fas fa-users"></i> User Management
-        </h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Joined</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <tr>
-                        <td colspan="5" class="empty-state">
-                            <i class="fas fa-users"></i>
-                            <p>Loading users...</p>
-                            <div class="spinner"></div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('bookings')" id="tabBookings">All Bookings</button>
+            <button class="tab-btn" onclick="switchTab('partners')" id="tabPartners">Partner Requests</button>
+            <button class="tab-btn" onclick="switchTab('users')" id="tabUsers">User Management</button>
         </div>
 
-        <!-- Recent Bookings Section -->
-        <h2 class="section-title">
-            <i class="fas fa-calendar-alt"></i> Recent Bookings
-        </h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Booking ID</th>
-                        <th>Customer</th>
-                        <th>Drop-off</th>
-                        <th>Pick-up</th>
-                        <th>Bags</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="bookingsTableBody">
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-calendar-times"></i>
-                            <p>No bookings yet</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Bookings Container -->
+        <div id="bookingsContainer">
+            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> All Bookings</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Customer Name</th>
+                            <th>Drop-off</th>
+                            <th>Pick-up</th>
+                            <th>Bags</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <i class="fas fa-calendar-times"></i>
+                                <p>Loading bookings...</p>
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Partner Requests Section -->
-        <h2 class="section-title">
-            <i class="fas fa-handshake"></i> Partner Requests
-        </h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Store Name</th>
-                        <th>Owner</th>
-                        <th>Email</th>
-                        <th>Address</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="partnersTableBody">
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <i class="fas fa-store"></i>
-                            <p>No partner requests</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Partner Requests Container (Hidden by default) -->
+        <div id="partnersContainer" style="display: none;">
+            <h2 class="section-title"><i class="fas fa-handshake"></i> Partner Requests</h2>
+            <div id="partnerRequestsList" class="partner-requests">
+                <!-- Partner requests will be loaded here -->
+            </div>
+        </div>
+
+        <!-- User Management Container (Hidden by default) -->
+        <div id="usersContainer" style="display: none;">
+            <h2 class="section-title"><i class="fas fa-users"></i> User Management</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Phone</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <p>Loading users...</p>
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase Config -->
-    <script src="../js/firebase-config.js"></script>
+    <!-- Booking Detail Modal -->
+    <div class="modal-overlay" id="bookingModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-receipt"></i> Booking Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close-modal" onclick="closeModal()">Close</button>
+                <button class="btn-print" onclick="printBooking()">Print Receipt</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         let currentUser = null;
+        let allBookings = [];
+        let allUsers = [];
 
         // Check authentication and load data
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                    currentUser = user;
-                    // Update the unified user menu (renders avatar / dropdown)
-                    if (typeof updateUserMenu === 'function') {
-                        updateUserMenu(user);
-                    }
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
                 
                 // Check if user is admin
                 db.collection('users').doc(user.uid).get().then(doc => {
@@ -686,462 +729,346 @@
 
         async function loadDashboardData() {
             try {
-                // Load users
-                const usersSnapshot = await db.collection('users').get();
-                let partners = 0;
-                let customers = 0;
-                let usersHtml = '';
+                await Promise.all([
+                    loadAllBookings(),
+                    loadAllUsers(),
+                    loadPartnerRequests()
+                ]);
+                
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showNotification('Error loading data', 'error');
+            }
+        }
 
+        async function loadAllBookings() {
+            try {
+                const bookingsSnapshot = await db.collection('bookings').orderBy('createdAt', 'desc').get();
+                
+                allBookings = [];
+                bookingsSnapshot.forEach(doc => {
+                    const booking = { id: doc.id, ...doc.data() };
+                    allBookings.push(booking);
+                });
+                
+                console.log(`Loaded ${allBookings.length} bookings from Firestore`);
+                renderBookingsTable(allBookings);
+                
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                document.getElementById('bookingsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Error loading bookings: ${error.message}</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderBookingsTable(bookings) {
+            const tbody = document.getElementById('bookingsTableBody');
+            
+            if (bookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No bookings found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            bookings.forEach(booking => {
+                // Get customer name - check all possible field names
+                const customerName = booking.customerName || booking.name || 'N/A';
+                
+                // Get dates - check all possible field names
+                const dropoffDate = booking.dropoffDate || booking.dropoff || 'N/A';
+                const dropoffTime = booking.dropoffTime || '';
+                const pickupDate = booking.pickupDate || booking.pickup || 'N/A';
+                const pickupTime = booking.pickupTime || '';
+                
+                // Format dates for display
+                const dropoffDisplay = dropoffTime ? `${dropoffDate} ${dropoffTime}` : dropoffDate;
+                const pickupDisplay = pickupTime ? `${pickupDate} ${pickupTime}` : pickupDate;
+                
+                // Get bag count
+                const bags = booking.numberOfBags || booking.bags || 0;
+                
+                // Get total
+                const total = booking.totalDisplay || booking.total || '$0';
+                
+                // Get status
+                const status = booking.status || 'active';
+                
+                html += `
+                    <tr onclick="viewBookingDetails('${booking.id}')">
+                        <td><strong>${booking.bookingId || 'N/A'}</strong></td>
+                        <td>${customerName}</td>
+                        <td>${dropoffDisplay}</td>
+                        <td>${pickupDisplay}</td>
+                        <td>${bags}</td>
+                        <td>${total}</td>
+                        <td><span class="status-badge status-${status}">${status}</span></td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        async function loadAllUsers() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                allUsers = [];
+                let usersHtml = '';
+                
                 usersSnapshot.forEach(doc => {
-                    const user = doc.data();
+                    const user = { id: doc.id, ...doc.data() };
+                    allUsers.push(user);
                     
-                    // Count roles
-                    if (user.role === 'partner') partners++;
-                    if (user.role === 'customer') customers++;
-                    
-                    // Format date
-                    const joinedDate = user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString() : 'N/A';
-                    
-                    // Add to table
                     usersHtml += `
                         <tr>
                             <td>${user.name || 'N/A'}</td>
                             <td>${user.email}</td>
                             <td>
-                                <span class="role-badge role-${user.role || 'customer'}">
+                                <span class="status-badge status-${user.role || 'customer'}">
                                     ${user.role || 'customer'}
                                 </span>
                             </td>
-                            <td>${joinedDate}</td>
+                            <td>${user.phone || 'N/A'}</td>
+                            <td>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString() : 'N/A'}</td>
                             <td>
-                                <button class="action-btn btn-view" onclick="showUserDetails('${doc.id}', '${user.name || ''}', '${user.email}', '${user.role}', '${user.phone || ''}')">
+                                <button class="action-btn btn-view" onclick="event.stopPropagation(); viewUser('${doc.id}')">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="action-btn btn-delete" onclick="deleteUser('${doc.id}')">
+                                <button class="action-btn btn-delete" onclick="event.stopPropagation(); deleteUser('${doc.id}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                     `;
                 });
-
-                // Update stats
-                document.getElementById('totalPartners').textContent = partners;
-                document.getElementById('totalCustomers').textContent = customers;
                 
-                // Update users table
                 document.getElementById('usersTableBody').innerHTML = usersHtml || `
                     <tr>
-                        <td colspan="5" class="empty-state">
+                        <td colspan="6" class="empty-state">
                             <i class="fas fa-users"></i>
                             <p>No users found</p>
                         </td>
                     </tr>
                 `;
-
-                // Load bookings
-                await loadBookings();
                 
             } catch (error) {
-                console.error('Error loading data:', error);
-                showNotification('Error loading data', 'error');
+                console.error('Error loading users:', error);
             }
         }
 
-        async function loadBookings() {
-            const bookingsSnapshot = await db.collection('bookings').get();
-            let totalBookings = 0;
-            let totalRevenue = 0;
-            let bookingsHtml = '';
-
-            bookingsSnapshot.forEach(doc => {
-                const booking = doc.data();
-                totalBookings++;
+        async function loadPartnerRequests() {
+            try {
+                // Query for pending partner requests
+                // This assumes you have a 'partnerRequests' collection
+                // If not, we'll just show a message
                 
-                // Parse total (remove $ and convert to number)
-                const amount = parseFloat(booking.total?.replace('$', '') || 0);
-                totalRevenue += amount;
+                const requestsContainer = document.getElementById('partnerRequestsList');
                 
-                bookingsHtml += `
-                    <tr>
-                        <td><strong>${booking.bookingId || 'N/A'}</strong></td>
-                        <td>${booking.name || 'N/A'}</td>
-                        <td>${booking.dropoff || 'N/A'}</td>
-                        <td>${booking.pickup || 'N/A'}</td>
-                        <td>${booking.bags || 0}</td>
-                        <td>${booking.total || '$0'}</td>
-                        <td>
-                            <span class="role-badge role-${booking.status || 'active'}">
-                                ${booking.status || 'active'}
-                            </span>
-                        </td>
-                    </tr>
+                // For now, show empty state with instructions
+                requestsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-handshake"></i>
+                        <h3>Partner Requests</h3>
+                        <p>When partners sign up, their requests will appear here.</p>
+                        <p style="margin-top: 20px; font-size: 14px; color: #667eea;">
+                            Partners can sign up at: <strong>/LuggageStorage/partner.html</strong>
+                        </p>
+                    </div>
                 `;
-            });
-
-            // Update stats
-            document.getElementById('totalBookings').textContent = totalBookings;
-            document.getElementById('totalRevenue').textContent = '$' + totalRevenue;
-            
-            // Update bookings table
-            document.getElementById('bookingsTableBody').innerHTML = bookingsHtml || `
-                <tr>
-                    <td colspan="7" class="empty-state">
-                        <i class="fas fa-calendar-times"></i>
-                        <p>No bookings yet</p>
-                    </td>
-                </tr>
-            `;
+                
+            } catch (error) {
+                console.error('Error loading partner requests:', error);
+            }
         }
 
-        // User actions
-        function showUserDetails(userId, userName, userEmail, userRole, userPhone) {
-            // Create a professional modal
-            const modal = document.createElement('div');
-            modal.className = 'user-modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2><i class="fas fa-user-circle"></i> User Details</h2>
-                        <button onclick="closeModal()" class="close-btn">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="detail-row">
-                            <i class="fas fa-user"></i>
-                            <span class="detail-label">Name:</span>
-                            <span class="detail-value">${userName || 'N/A'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <i class="fas fa-envelope"></i>
-                            <span class="detail-label">Email:</span>
-                            <span class="detail-value">${userEmail}</span>
-                        </div>
-                        <div class="detail-row">
-                            <i class="fas fa-tag"></i>
-                            <span class="detail-label">Role:</span>
-                            <span class="detail-value role-badge role-${userRole}">${userRole}</span>
-                        </div>
-                        <div class="detail-row">
-                            <i class="fas fa-phone"></i>
-                            <span class="detail-label">Phone:</span>
-                            <span class="detail-value">${userPhone || 'N/A'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <i class="fas fa-id-card"></i>
-                            <span class="detail-label">User ID:</span>
-                            <span class="detail-value">${userId}</span>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button onclick="closeModal()" class="btn-close">Close</button>
-                        <button onclick="deleteUser('${userId}', '${userEmail}')" class="btn-delete-modal">
-                            <i class="fas fa-trash"></i> Delete User
-                        </button>
-                    </div>
+        function updateStats() {
+            // Calculate stats from allBookings
+            const totalBookings = allBookings.length;
+            
+            // Count unique customers
+            const uniqueCustomers = new Set();
+            allBookings.forEach(b => {
+                const email = b.customerEmail || b.email;
+                if (email) uniqueCustomers.add(email);
+            });
+            
+            // Calculate total revenue
+            let totalRevenue = 0;
+            allBookings.forEach(b => {
+                if (b.totalValue) {
+                    totalRevenue += b.totalValue;
+                } else if (b.total) {
+                    totalRevenue += parseFloat(b.total.replace('$', '')) || 0;
+                }
+            });
+            
+            // Count partners from users
+            const partners = allUsers.filter(u => u.role === 'partner').length;
+            
+            document.getElementById('totalPartners').textContent = partners;
+            document.getElementById('totalCustomers').textContent = uniqueCustomers.size;
+            document.getElementById('totalBookings').textContent = totalBookings;
+            document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toFixed(2);
+        }
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+            
+            // Show/hide containers
+            document.getElementById('bookingsContainer').style.display = tab === 'bookings' ? 'block' : 'none';
+            document.getElementById('partnersContainer').style.display = tab === 'partners' ? 'block' : 'none';
+            document.getElementById('usersContainer').style.display = tab === 'users' ? 'block' : 'none';
+        }
+
+        async function viewBookingDetails(bookingId) {
+            const booking = allBookings.find(b => b.id === bookingId);
+            
+            if (!booking) return;
+            
+            // Get customer details
+            const customerName = booking.customerName || booking.name || 'N/A';
+            const customerEmail = booking.customerEmail || booking.email || 'N/A';
+            const customerPhone = booking.customerPhone || booking.phone || 'N/A';
+            
+            // Get dates
+            const dropoffDate = booking.dropoffDate || booking.dropoff || 'N/A';
+            const dropoffTime = booking.dropoffTime || '';
+            const pickupDate = booking.pickupDate || booking.pickup || 'N/A';
+            const pickupTime = booking.pickupTime || '';
+            
+            // Format dates
+            const dropoffDisplay = dropoffTime ? `${dropoffDate} at ${dropoffTime}` : dropoffDate;
+            const pickupDisplay = pickupTime ? `${pickupDate} at ${pickupTime}` : pickupDate;
+            
+            // Get bag details
+            const bags = booking.numberOfBags || booking.bags || 0;
+            const bagSize = booking.bagSize || 'Medium';
+            
+            // Get payment
+            const total = booking.totalDisplay || booking.total || '$0';
+            const paymentMethod = booking.paymentMethod === 'store' ? 'Pay in store' : (booking.paymentMethod || 'store');
+            
+            // Get security
+            const accessCode = booking.accessCode || 'N/A';
+            const qrCode = booking.qrCode || '';
+            
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <div class="qr-large">
+                    ${qrCode ? `<img src="${qrCode}" alt="QR Code">` : '<i class="fas fa-qrcode" style="font-size: 100px; color: #cbd5e0;"></i>'}
+                </div>
+                
+                <div class="detail-row">
+                    <i class="fas fa-hashtag"></i>
+                    <span class="label">Booking ID:</span>
+                    <span class="value">${booking.bookingId || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-user"></i>
+                    <span class="label">Customer:</span>
+                    <span class="value">${customerName}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-envelope"></i>
+                    <span class="label">Email:</span>
+                    <span class="value">${customerEmail}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-phone"></i>
+                    <span class="label">Phone:</span>
+                    <span class="value">${customerPhone}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-calendar"></i>
+                    <span class="label">Drop-off:</span>
+                    <span class="value">${dropoffDisplay}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="label">Pick-up:</span>
+                    <span class="value">${pickupDisplay}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-suitcase"></i>
+                    <span class="label">Bags:</span>
+                    <span class="value">${bags} (${bagSize})</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-lock"></i>
+                    <span class="label">Access Code:</span>
+                    <span class="value" style="font-family: monospace; font-size: 18px; color: #667eea;">${accessCode}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-credit-card"></i>
+                    <span class="label">Payment:</span>
+                    <span class="value">${paymentMethod}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span class="label">Total:</span>
+                    <span class="value">${total}</span>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-clock"></i>
+                    <span class="label">Status:</span>
+                    <span class="value"><span class="status-badge status-${booking.status || 'active'}">${booking.status || 'active'}</span></span>
                 </div>
             `;
             
-            document.body.appendChild(modal);
-            
-            // Add modal styles
-            const style = document.createElement('style');
-            style.textContent = `
-                .user-modal {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0,0,0,0.8);
-                    backdrop-filter: blur(5px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10000;
-                    animation: fadeIn 0.3s;
-                }
-                .modal-content {
-                    background: white;
-                    border-radius: 30px;
-                    max-width: 500px;
-                    width: 90%;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                    animation: slideUp 0.3s;
-                }
-                .modal-header {
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    color: white;
-                    padding: 30px;
-                    border-radius: 30px 30px 0 0;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                .modal-header h2 {
-                    margin: 0;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                .close-btn {
-                    background: none;
-                    border: none;
-                    color: white;
-                    font-size: 30px;
-                    cursor: pointer;
-                }
-                .modal-body {
-                    padding: 30px;
-                }
-                .detail-row {
-                    display: flex;
-                    align-items: center;
-                    padding: 12px 0;
-                    border-bottom: 1px solid #e2e8f0;
-                }
-                .detail-row i {
-                    width: 30px;
-                    color: #667eea;
-                }
-                .detail-label {
-                    width: 100px;
-                    color: #64748b;
-                }
-                .detail-value {
-                    flex: 1;
-                    font-weight: 500;
-                }
-                .modal-footer {
-                    padding: 20px 30px;
-                    border-top: 1px solid #e2e8f0;
-                    display: flex;
-                    gap: 10px;
-                }
-                .btn-close {
-                    flex: 1;
-                    padding: 12px;
-                    background: #e2e8f0;
-                    border: none;
-                    border-radius: 10px;
-                    font-weight: 600;
-                    cursor: pointer;
-                }
-                .btn-delete-modal {
-                    flex: 1;
-                    padding: 12px;
-                    background: #ef4444;
-                    color: white;
-                    border: none;
-                    border-radius: 10px;
-                    font-weight: 600;
-                    cursor: pointer;
-                }
-                .btn-delete-modal:hover {
-                    background: #dc2626;
-                }
-            `;
-            document.head.appendChild(style);
+            document.getElementById('bookingModal').style.display = 'flex';
         }
 
         function closeModal() {
-            const modal = document.querySelector('.user-modal');
-            if (modal) modal.remove();
+            document.getElementById('bookingModal').style.display = 'none';
         }
 
-        async function deleteUser(userId, userEmail) {
-            // Don't allow deleting yourself
-            if (userId === currentUser?.uid) {
-                showProfessionalConfirm(
-                    '⚠️ Cannot Delete Yourself',
-                    'You cannot delete your own admin account. Please ask another admin to do this.',
-                    'info'
-                );
-                return;
+        function printBooking() {
+            window.print();
+        }
+
+        function viewUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (user) {
+                alert(`User Details:\n\nName: ${user.name}\nEmail: ${user.email}\nRole: ${user.role}\nPhone: ${user.phone || 'N/A'}`);
             }
-            
-            // Show professional confirmation modal
-            showProfessionalConfirm(
-                'Delete User Account',
-                `Are you sure you want to delete ${userEmail || 'this user'}? This action cannot be undone.`,
-                'warning',
-                async () => {
-                    try {
-                        // Show loading
-                        showNotification('Deleting user...', 'info');
-                        
-                        // Delete user data from Firestore
-                        await db.collection('users').doc(userId).delete();
-                        
-                        // Delete user's bookings
-                        const bookings = await db.collection('bookings')
-                            .where('userId', '==', userId)
-                            .get();
-                        
-                        const batch = db.batch();
-                        bookings.forEach(doc => {
-                            batch.delete(doc.ref);
-                        });
-                        await batch.commit();
-                        
-                        showNotification('✅ User deleted successfully from database', 'success');
-                        
-                        // Reload the data
-                        loadDashboardData();
-                        
-                    } catch (error) {
-                        console.error('Delete error:', error);
-                        
-                        if (error.code === 'permission-denied') {
-                            showProfessionalConfirm(
-                                '❌ Permission Denied',
-                                'You need additional permissions to delete this user. Please use Firebase Console for complete deletion.',
-                                'error'
-                            );
-                        } else {
-                            showNotification('Error: ' + error.message, 'error');
-                        }
-                    }
-                }
-            );
         }
 
-        // Professional confirmation modal
-        function showProfessionalConfirm(title, message, type, onConfirm) {
-            const modal = document.createElement('div');
-            modal.className = 'confirm-modal';
+        function deleteUser(userId) {
+            if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
             
-            const colors = {
-                warning: { bg: '#fef2f2', icon: '⚠️', color: '#ef4444', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
-                error: { bg: '#fef2f2', icon: '❌', color: '#ef4444', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
-                info: { bg: '#f0f9ff', icon: 'ℹ️', color: '#3b82f6', gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)' },
-                success: { bg: '#f0fdf4', icon: '✅', color: '#10b981', gradient: 'linear-gradient(135deg, #10b981, #059669)' }
-            };
-            
-            const selected = colors[type] || colors.warning;
-            
-            modal.innerHTML = `
-                <div class="confirm-content">
-                    <div class="confirm-header" style="background: ${selected.gradient}">
-                        <div class="confirm-icon">${selected.icon}</div>
-                        <h3>${title}</h3>
-                    </div>
-                    <div class="confirm-body">
-                        <p>${message}</p>
-                    </div>
-                    <div class="confirm-footer">
-                        ${onConfirm ? `
-                            <button class="btn-cancel" onclick="closeConfirmModal()">Cancel</button>
-                            <button class="btn-confirm" style="background: ${selected.color}" onclick="executeDelete()">Yes, Delete</button>
-                        ` : `
-                            <button class="btn-ok" onclick="closeConfirmModal()" style="background: ${selected.color}">OK</button>
-                        `}
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Store the confirm function globally
-            window.executeDelete = () => {
-                closeConfirmModal();
-                if (onConfirm) onConfirm();
-            };
-            
-            // Add styles
-            const style = document.createElement('style');
-            style.textContent = `
-                .confirm-modal {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0,0,0,0.8);
-                    backdrop-filter: blur(5px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10000;
-                    animation: fadeIn 0.3s;
-                }
-                .confirm-content {
-                    background: white;
-                    border-radius: 30px;
-                    max-width: 450px;
-                    width: 90%;
-                    overflow: hidden;
-                    animation: slideUp 0.3s;
-                }
-                .confirm-header {
-                    padding: 30px;
-                    text-align: center;
-                    color: white;
-                }
-                .confirm-icon {
-                    font-size: 48px;
-                    margin-bottom: 15px;
-                }
-                .confirm-header h3 {
-                    margin: 0;
-                    font-size: 24px;
-                }
-                .confirm-body {
-                    padding: 30px;
-                    text-align: center;
-                    color: #1e293b;
-                }
-                .confirm-footer {
-                    padding: 20px 30px;
-                    border-top: 1px solid #e2e8f0;
-                    display: flex;
-                    gap: 10px;
-                }
-                .btn-cancel, .btn-confirm, .btn-ok {
-                    flex: 1;
-                    padding: 12px;
-                    border: none;
-                    border-radius: 10px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                }
-                .btn-cancel {
-                    background: #e2e8f0;
-                    color: #1e293b;
-                }
-                .btn-cancel:hover, .btn-confirm:hover, .btn-ok:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                }
-                .btn-confirm, .btn-ok {
-                    color: white;
-                }
-                @keyframes slideUp {
-                    from { transform: translateY(50px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
+            // This should be done via Firebase Console for security
+            alert('For security reasons, please use Firebase Console to delete users.');
         }
 
-        function closeConfirmModal() {
-            const modal = document.querySelector('.confirm-modal');
-            if (modal) modal.remove();
-        }
-
-        // Logout function
         function logout() {
             firebase.auth().signOut()
                 .then(() => {
                     window.location.href = '/LuggageStorage/';
                 })
-                .catch((error) => {
+                .catch(error => {
                     showNotification(error.message, 'error');
                 });
         }
 
-        // Notification function
         function showNotification(message, type) {
             const colors = {
                 success: '#10b981',
@@ -1150,19 +1077,20 @@
                 warning: '#f59e0b'
             };
             
-            const icons = {
-                success: '✅',
-                error: '❌',
-                info: 'ℹ️',
-                warning: '⚠️'
-            };
-            
             const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.innerHTML = `${icons[type]} ${message}`;
-            notification.style.background = colors[type];
-            notification.style.color = 'white';
-            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                z-index: 9999;
+                animation: slideIn 0.3s;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
             document.body.appendChild(notification);
             
             setTimeout(() => {
@@ -1171,12 +1099,16 @@
             }, 3000);
         }
 
-        // Add fadeOut animation
+        // Add animation styles
         const style = document.createElement('style');
         style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
             @keyframes fadeOut {
-                from { opacity: 1; transform: translateX(0); }
-                to { opacity: 0; transform: translateX(100%); }
+                from { opacity: 1; }
+                to { opacity: 0; }
             }
         `;
         document.head.appendChild(style);
