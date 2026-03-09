@@ -3,234 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Luggage Storage Sydney CBD - Secure & Affordable | Your Business Name</title>
-    <meta name="description" content="Secure luggage storage in Sydney CBD at 69-75 King St. Book online, drop off your bags, and explore hands-free. From $7/day with free cancellation.">
+    <title>Become a Partner - Luggage Storage Sydney</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- Your Firebase config and auth helpers -->
+    <!-- Your Firebase config -->
     <script src="/LuggageStorage/js/firebase-config.js"></script>
-    <script src="/LuggageStorage/js/auth.js"></script>
-
+    
     <style>
-        .partner-hero {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            padding: 120px 0 80px;
-            text-align: center;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            animation: gradientBG 15s ease infinite;
+            background-size: 300% 300%;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-outline {
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-primary:hover, .btn-outline:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Partner Hero Section */
+        .partner-hero {
+            padding: 150px 20px 80px;
+            text-align: center;
+            color: white;
+        }
+
         .partner-hero h1 {
             font-size: 48px;
             margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease;
         }
-        
+
         .partner-hero p {
             font-size: 20px;
             max-width: 600px;
-            margin: 0 auto 30px;
+            margin: 0 auto 40px;
             opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s both;
         }
-        
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             max-width: 800px;
             margin: 60px auto 0;
+            animation: fadeInUp 0.8s ease 0.4s both;
         }
-        
-        .stat-item h3 {
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-card h3 {
             font-size: 36px;
-            color: var(--primary);
             margin-bottom: 10px;
         }
-        
+
+        .stat-card p {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        /* Main Container */
+        .partner-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .partner-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .card-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .form-group label i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #64748b;
+        }
+
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Benefits Section */
         .benefits-section {
             padding: 80px 0;
             background: white;
         }
-        
+
         .benefits-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
-            margin-top: 50px;
+            max-width: 1200px;
+            margin: 50px auto 0;
+            padding: 0 20px;
         }
-        
+
         .benefit-card {
             text-align: center;
             padding: 40px 30px;
             border-radius: 20px;
             background: #f8fafc;
-            transition: transform 0.3s;
+            transition: all 0.3s;
         }
-        
+
         .benefit-card:hover {
             transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.1);
         }
-        
+
         .benefit-icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
             margin: 0 auto 20px;
-        }
-        
-        .how-it-works-partner {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            font-size: 32px;
         }
-        
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-            margin-top: 50px;
-        }
-        
-        .step-card {
-            text-align: center;
-        }
-        
-        .step-number-big {
-            font-size: 48px;
-            font-weight: 700;
-            opacity: 0.3;
-            margin-bottom: 20px;
-        }
-        
-        .partner-form-section {
-            padding: 80px 0;
-        }
-        
-        .partner-form-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        .checkbox-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: normal;
-        }
-        
-        .testimonial-section {
-            padding: 80px 0;
-            background: #f8fafc;
-        }
-        
-        .testimonial-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            max-width: 800px;
-            margin: 40px auto 0;
-        }
-        
-        .testimonial-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-        
-        .testimonial-card i {
-            color: var(--primary);
-            font-size: 24px;
-            opacity: 0.3;
+
+        .benefit-card h3 {
             margin-bottom: 15px;
+            color: #1e293b;
         }
-        
-        .testimonial-author {
-            margin-top: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+
+        .benefit-card p {
+            color: #64748b;
+            line-height: 1.6;
         }
-        
-        .author-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 50px;
             color: white;
-            font-weight: 600;
+            z-index: 9999;
+            animation: slideIn 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        
-        .faq-partner {
-            padding: 80px 0;
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-        
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
         @media (max-width: 768px) {
-            .stats-grid,
-            .benefits-grid,
-            .steps-grid,
-            .testimonial-grid {
+            .partner-hero h1 {
+                font-size: 32px;
+            }
+            
+            .partner-hero p {
+                font-size: 16px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .benefits-grid {
                 grid-template-columns: 1fr;
             }
             
             .form-row {
                 grid-template-columns: 1fr;
+            }
+            
+            .card-body {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -259,183 +440,255 @@
                 <li><a href="/LuggageStorage/booking" class="btn-primary">Book now</a></li>
                 
                 <!-- User Menu - Dynamic -->
-                <li class="user-menu-container" id="userMenuContainer">
-                    <!-- This will be populated by JavaScript -->
-                </li>
+                <li class="user-menu-container" id="userMenuContainer"></li>
             </ul>
         </div>
     </nav>
 
-    <!-- User Menu Styles -->
-    <style>
-        .user-menu-container {
-            position: relative;
-            margin-left: 10px;
-        }
+    <!-- Partner Hero Section -->
+    <section class="partner-hero">
+        <h1>Grow Your Business with Us</h1>
+        <p>Join our network of trusted storage locations and earn extra income</p>
         
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-        
-        .user-avatar:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-            border-color: white;
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            min-width: 250px;
-            display: none;
-            z-index: 1000;
-            animation: slideDown 0.3s ease;
-            overflow: hidden;
-        }
-        
-        .user-dropdown.show {
-            display: block;
-        }
-        
-        .dropdown-header {
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-        
-        .dropdown-header .user-name {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-        
-        .dropdown-header .user-email-small {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-        
-        .dropdown-menu {
-            list-style: none;
-            padding: 10px 0;
-        }
-        
-        .dropdown-menu li {
-            padding: 0;
-        }
-        
-        .dropdown-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 20px;
-            color: #1e293b;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .dropdown-menu a:hover {
-            background: #f0f9ff;
-            color: #667eea;
-        }
-        
-        .dropdown-menu i {
-            width: 20px;
-            color: #667eea;
-        }
-        
-        .dropdown-divider {
-            height: 1px;
-            background: #e2e8f0;
-            margin: 8px 0;
-        }
-        
-        .logout-item a {
-            color: #ef4444;
-        }
-        
-        .logout-item a:hover {
-            background: #fef2f2;
-            color: #dc2626;
-        }
-        
-        .logout-item i {
-            color: #ef4444;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            .user-menu-container {
-                margin: 10px 0;
-                width: 100%;
-            }
-            
-            .user-avatar {
-                width: 35px;
-                height: 35px;
-                font-size: 14px;
-            }
-            
-            .user-dropdown {
-                position: static;
-                width: 100%;
-                margin-top: 10px;
-                box-shadow: none;
-                border: 1px solid #e2e8f0;
-            }
-        }
-    </style>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>10,000+</h3>
+                <p>Monthly Bookings</p>
+            </div>
+            <div class="stat-card">
+                <h3>$500+</h3>
+                <p>Average Monthly Earnings</p>
+            </div>
+            <div class="stat-card">
+                <h3>24h</h3>
+                <p>Fast Approval</p>
+            </div>
+        </div>
+    </section>
 
-    <!-- User Menu JavaScript -->
+    <!-- Partner Signup Form -->
+    <div class="partner-container">
+        <div class="partner-card">
+            <div class="card-header">
+                <h2>Apply to Become a Partner</h2>
+                <p>Fill out the form below to get started</p>
+            </div>
+            <div class="card-body">
+                <form id="partnerSignupForm" onsubmit="event.preventDefault(); submitPartnerApplication()">
+                    <!-- Personal Information -->
+                    <h3 style="margin-bottom: 20px; color: #1e293b;">Personal Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> First Name</label>
+                            <input type="text" id="firstName" class="form-control" placeholder="John" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Last Name</label>
+                            <input type="text" id="lastName" class="form-control" placeholder="Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="email" class="form-control" placeholder="partner@business.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="+61 4xx xxx xxx" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="Create a password" minlength="6" required>
+                        <small style="color: #64748b; font-size: 12px;">Minimum 6 characters</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                    </div>
+
+                    <!-- Store Information -->
+                    <h3 style="margin: 30px 0 20px; color: #1e293b;">Store Information</h3>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-store"></i> Store/Business Name</label>
+                        <input type="text" id="storeName" class="form-control" placeholder="e.g., TSG City Centre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Store Address</label>
+                        <input type="text" id="storeAddress" class="form-control" placeholder="Street address" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Suburb/City</label>
+                            <input type="text" id="city" class="form-control" placeholder="Sydney" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Postcode</label>
+                            <input type="text" id="postcode" class="form-control" placeholder="2000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Business Hours</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="time" id="openTime" class="form-control" value="09:00">
+                            </div>
+                            <div class="form-group">
+                                <input type="time" id="closeTime" class="form-control" value="17:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> ABN (Optional)</label>
+                        <input type="text" id="abn" class="form-control" placeholder="12 345 678 901">
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="termsAgree" required>
+                                <span>I agree to the <a href="#" style="color: #667eea;">Terms & Conditions</a></span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="privacyAgree" required>
+                                <span>I accept the <a href="#" style="color: #667eea;">Privacy Policy</a></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span class="btn-text">Submit Application</span>
+                        <span class="spinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i></span>
+                    </button>
+
+                    <div class="auth-footer">
+                        <p>Already have a partner account? <a href="/LuggageStorage/login.html">Sign in</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="container">
+            <h2 class="section-title">Why Partner With Us?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3>Extra Income</h3>
+                    <p>Earn passive income from your existing space. Partners earn an average of $500+ per month.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>More Customers</h3>
+                    <p>Get exposure to thousands of travelers looking for secure luggage storage.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Full Protection</h3>
+                    <p>$10,000 insurance coverage for every bag stored at your location.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Flexible Hours</h3>
+                    <p>You control your availability and business hours. Work when it suits you.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Easy Management</h3>
+                    <p>Simple partner dashboard to manage bookings, view earnings, and track storage.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Dedicated partner support team always available to help you.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: #1e293b; color: white; padding: 40px 0 20px;">
+        <div class="container">
+            <div class="footer-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; margin-bottom: 40px;">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <i class="fas fa-suitcase"></i>
+                        <span>Luggage Storage</span>
+                    </div>
+                    <p style="color: #94a3b8;">Freedom to explore without your bags.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 style="color: white; margin-bottom: 20px;">Company</h4>
+                    <ul style="list-style: none;">
+                        <li><a href="#" style="color: #94a3b8; text-decoration: none;">About us</a></li>
+                        <li><a href="#" style="color: #94a3b8; text-decoration: none;">Careers</a></li>
+                        <li><a href="#" style="color: #94a3b8; text-decoration: none;">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 style="color: white; margin-bottom: 20px;">Support</h4>
+                    <ul style="list-style: none;">
+                        <li><a href="#" style="color: #94a3b8; text-decoration: none;">Help center</a></li>
+                        <li><a href="#" style="color: #94a3b8; text-decoration: none;">Contact</a></li>
+                        <li><a href="/LuggageStorage/partner" style="color: #94a3b8; text-decoration: none;">Partner program</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 style="color: white; margin-bottom: 20px;">Follow us</h4>
+                    <div class="social-links" style="display: flex; gap: 15px;">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom" style="text-align: center; padding-top: 20px; border-top: 1px solid #334155; color: #94a3b8;">
+                <p>&copy; 2024 Luggage Storage. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile menu script -->
     <script>
-        // Function to update user menu based on login state
+        document.getElementById('mobileMenu')?.addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // User menu functions (simplified version)
         function updateUserMenu(user) {
             const menuContainer = document.getElementById('userMenuContainer');
+            if (!menuContainer) return;
             
             if (user) {
-                // Get user name from Firestore
                 db.collection('users').doc(user.uid).get().then(doc => {
                     if (doc.exists) {
                         const userData = doc.data();
                         const name = userData.name || 'User';
-                        const email = user.email;
-                        const role = userData.role || 'customer';
+                        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
                         
-                        // Get initials (e.g., "JD" for John Doe)
-                        const initials = name
-                            .split(' ')
-                            .map(word => word[0])
-                            .join('')
-                            .toUpperCase()
-                            .substring(0, 2);
-                        
-                        // Create avatar with initials
                         menuContainer.innerHTML = `
                             <div class="user-avatar" onclick="toggleUserMenu()" title="${name}">
                                 ${initials}
@@ -443,544 +696,244 @@
                             <div class="user-dropdown" id="userDropdown">
                                 <div class="dropdown-header">
                                     <div class="user-name">${name}</div>
-                                    <div class="user-email-small">${email}</div>
+                                    <div class="user-email-small">${user.email}</div>
                                 </div>
                                 <ul class="dropdown-menu">
-                                    <li><a href="/LuggageStorage/dashboard/${role}.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                                    <li><a href="#" onclick="showUserProfile()"><i class="fas fa-user-circle"></i> Profile</a></li>
-                                    <li><a href="/LuggageStorage/booking.html"><i class="fas fa-suitcase"></i> New Booking</a></li>
-                                    <li class="dropdown-divider"></li>
-                                    <li class="logout-item"><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign out</a></li>
+                                    <li><a href="/LuggageStorage/dashboard/${userData.role}.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                    <li><a href="#" onclick="event.preventDefault(); logout()"><i class="fas fa-sign-out-alt"></i> Sign out</a></li>
                                 </ul>
                             </div>
                         `;
                     }
                 });
             } else {
-                // Show login/signup buttons
                 menuContainer.innerHTML = `
-                    <li class="auth-links" style="display: flex; gap: 10px; list-style: none;">
+                    <div style="display: flex; gap: 10px;">
                         <a href="/LuggageStorage/login.html" class="btn-outline">Login</a>
                         <a href="/LuggageStorage/signup.html" class="btn-primary">Sign Up</a>
-                    </li>
+                    </div>
                 `;
             }
         }
-        
-        // Toggle user dropdown menu
-        function toggleUserMenu() {
+
+        window.toggleUserMenu = function() {
             const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('show');
-        }
-        
-        // Close dropdown when clicking outside
+            if (dropdown) dropdown.classList.toggle('show');
+        };
+
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('userDropdown');
             const avatar = document.querySelector('.user-avatar');
-            
             if (dropdown && avatar && !avatar.contains(event.target) && !dropdown.contains(event.target)) {
                 dropdown.classList.remove('show');
             }
         });
-        
-        // Show user profile modal
-        function showUserProfile() {
-            const user = firebase.auth().currentUser;
-            if (!user) return;
-            
-            db.collection('users').doc(user.uid).get().then(doc => {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    
-                    // Create profile modal
-                    const modal = document.createElement('div');
-                    modal.className = 'profile-modal';
-                    modal.innerHTML = `
-                        <div class="profile-content">
-                            <div class="profile-header">
-                                <div class="profile-avatar-large">
-                                    ${userData.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)}
-                                </div>
-                                <h2>${userData.name}</h2>
-                                <p>${user.email}</p>
-                            </div>
-                            <div class="profile-body">
-                                <div class="profile-row">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>Email</span>
-                                    <strong>${user.email}</strong>
-                                </div>
-                                <div class="profile-row">
-                                    <i class="fas fa-phone"></i>
-                                    <span>Phone</span>
-                                    <strong>${userData.phone || 'Not provided'}</strong>
-                                </div>
-                                <div class="profile-row">
-                                    <i class="fas fa-tag"></i>
-                                    <span>Role</span>
-                                    <strong class="role-badge role-${userData.role}">${userData.role}</strong>
-                                </div>
-                                <div class="profile-row">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>Member since</span>
-                                    <strong>${userData.createdAt ? new Date(userData.createdAt.toDate()).toLocaleDateString() : 'N/A'}</strong>
-                                </div>
-                            </div>
-                            <div class="profile-footer">
-                                <button onclick="closeProfileModal()" class="btn-close">Close</button>
-                                <button onclick="logout()" class="btn-logout">Sign Out</button>
-                            </div>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(modal);
-                    
-                    // Add modal styles
-                    const style = document.createElement('style');
-                    style.textContent = `
-                        .profile-modal {
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            bottom: 0;
-                            background: rgba(0,0,0,0.8);
-                            backdrop-filter: blur(5px);
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            z-index: 10000;
-                            animation: fadeIn 0.3s;
-                        }
-                        .profile-content {
-                            background: white;
-                            border-radius: 30px;
-                            max-width: 450px;
-                            width: 90%;
-                            overflow: hidden;
-                            animation: slideUp 0.3s;
-                        }
-                        .profile-header {
-                            background: linear-gradient(135deg, #667eea, #764ba2);
-                            color: white;
-                            padding: 40px;
-                            text-align: center;
-                        }
-                        .profile-avatar-large {
-                            width: 80px;
-                            height: 80px;
-                            background: white;
-                            color: #667eea;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 32px;
-                            font-weight: 700;
-                            margin: 0 auto 20px;
-                            border: 4px solid white;
-                        }
-                        .profile-body {
-                            padding: 30px;
-                        }
-                        .profile-row {
-                            display: flex;
-                            align-items: center;
-                            padding: 12px 0;
-                            border-bottom: 1px solid #e2e8f0;
-                        }
-                        .profile-row i {
-                            width: 30px;
-                            color: #667eea;
-                        }
-                        .profile-row span {
-                            width: 120px;
-                            color: #64748b;
-                        }
-                        .profile-row strong {
-                            flex: 1;
-                            font-weight: 600;
-                        }
-                        .profile-footer {
-                            padding: 20px 30px;
-                            border-top: 1px solid #e2e8f0;
-                            display: flex;
-                            gap: 10px;
-                        }
-                        .btn-close, .btn-logout {
-                            flex: 1;
-                            padding: 12px;
-                            border: none;
-                            border-radius: 10px;
-                            font-weight: 600;
-                            cursor: pointer;
-                            transition: all 0.3s;
-                        }
-                        .btn-close {
-                            background: #e2e8f0;
-                            color: #1e293b;
-                        }
-                        .btn-logout {
-                            background: #ef4444;
-                            color: white;
-                        }
-                        .btn-close:hover, .btn-logout:hover {
-                            transform: translateY(-2px);
-                            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
+
+        window.logout = function() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = '/LuggageStorage/';
             });
-        }
-        
-        function closeProfileModal() {
-            const modal = document.querySelector('.profile-modal');
-            if (modal) modal.remove();
-        }
-        
-        // Listen for auth state changes
+        };
+
         firebase.auth().onAuthStateChanged((user) => {
             updateUserMenu(user);
         });
-    </script>
-    
-    <!-- Partner Hero -->
-    <section class="partner-hero">
-        <div class="container">
-            <h1>Turn Your Space Into Income</h1>
-            <p>Join thousands of businesses earning extra revenue by storing luggage for travelers</p>
-            <a href="#partner-form" class="btn btn-primary btn-large">Apply to Become a Partner</a>
+
+        // Partner signup function
+        async function submitPartnerApplication() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const storeName = document.getElementById('storeName').value.trim();
+            const storeAddress = document.getElementById('storeAddress').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const postcode = document.getElementById('postcode').value.trim();
+            const openTime = document.getElementById('openTime').value;
+            const closeTime = document.getElementById('closeTime').value;
+            const abn = document.getElementById('abn').value.trim();
             
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <h3>$2,500+</h3>
-                    <p>Average monthly earnings</p>
-                </div>
-                <div class="stat-item">
-                    <h3>4.9</h3>
-                    <p>Partner satisfaction rating</p>
-                </div>
-                <div class="stat-item">
-                    <h3>24h</h3>
-                    <p>Fast approval</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Benefits -->
-    <section class="benefits-section">
-        <div class="container">
-            <h2>Why Partner With Us</h2>
-            <div class="benefits-grid">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <h3>Extra Income</h3>
-                    <p>Earn passive income from your existing space without any investment</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>More Customers</h3>
-                    <p>Get exposure to millions of travelers looking for storage</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Full Protection</h3>
-                    <p>$10,000 insurance coverage for every bag stored</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h3>Flexible Hours</h3>
-                    <p>You control your availability and storage hours</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3>Easy Management</h3>
-                    <p>Simple dashboard to manage bookings and earnings</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h3>24/7 Support</h3>
-                    <p>Dedicated partner support team always available</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- How It Works -->
-    <section class="how-it-works-partner">
-        <div class="container">
-            <h2 style="color: white;">How It Works</h2>
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-number-big">1</div>
-                    <h3>Apply Online</h3>
-                    <p>Fill out our simple application form</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number-big">2</div>
-                    <h3>Quick Verification</h3>
-                    <p>We'll verify your space within 24 hours</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number-big">3</div>
-                    <h3>Start Accepting</h3>
-                    <p>Get bookings and start earning immediately</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number-big">4</div>
-                    <h3>Get Paid</h3>
-                    <p>Receive payments directly to your account</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Partner Form -->
-    <section id="partner-form" class="partner-form-section">
-        <div class="container">
-            <div class="partner-form-container">
-                <h2>Become a Partner Today</h2>
-                <p style="margin-bottom: 30px;">Fill out the form below and we'll get back to you within 24 hours.</p>
+            // Validation
+            if (!firstName || !lastName || !email || !phone || !password || !storeName || !storeAddress || !city || !postcode) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+
+            // Show loading
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const spinner = submitBtn.querySelector('.spinner');
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            submitBtn.disabled = true;
+
+            try {
+                // Create user in Firebase Auth
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Create full name
+                const fullName = firstName + ' ' + lastName;
+
+                // Create store address
+                const fullAddress = `${storeAddress}, ${city} ${postcode}`;
+
+                // Create partner document in Firestore (pending approval)
+                await db.collection('users').doc(user.uid).set({
+                    name: fullName,
+                    email: email,
+                    phone: phone,
+                    role: 'pending_partner', // Pending approval
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: user.uid
+                });
+
+                // Create partner application document
+                await db.collection('partnerApplications').add({
+                    userId: user.uid,
+                    applicantName: fullName,
+                    applicantEmail: email,
+                    applicantPhone: phone,
+                    storeName: storeName,
+                    storeAddress: fullAddress,
+                    storeAddressLine1: storeAddress,
+                    storeCity: city,
+                    storePostcode: postcode,
+                    openTime: openTime,
+                    closeTime: closeTime,
+                    abn: abn || null,
+                    status: 'pending', // pending, approved, rejected
+                    appliedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reviewedAt: null
+                });
+
+                showNotification('Application submitted successfully! We will review and contact you within 24 hours.', 'success');
+
+                // Reset form
+                document.getElementById('partnerSignupForm').reset();
+
+                // Sign out the user (they can log in after approval)
+                await firebase.auth().signOut();
+
+                // Redirect to home page after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/LuggageStorage/';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Signup error:', error);
                 
-                <form onsubmit="submitPartnerApplication(event)">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>First Name *</label>
-                            <input type="text" id="firstName" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Last Name *</label>
-                            <input type="text" id="lastName" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email Address *</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Phone Number *</label>
-                        <input type="tel" id="phone" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Business Name *</label>
-                        <input type="text" id="businessName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Business Address *</label>
-                        <input type="text" id="address" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>City *</label>
-                            <input type="text" id="city" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Postal Code *</label>
-                            <input type="text" id="postalCode" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Business Type *</label>
-                        <select id="businessType" required>
-                            <option value="">Select business type</option>
-                            <option value="hotel">Hotel / Hostel</option>
-                            <option value="retail">Retail Store</option>
-                            <option value="cafe">Cafe / Restaurant</option>
-                            <option value="gym">Gym / Fitness Center</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Available Storage Space *</label>
-                        <select id="storageSpace" required>
-                            <option value="">Select approximate space</option>
-                            <option value="small">Small (up to 10 bags)</option>
-                            <option value="medium">Medium (10-30 bags)</option>
-                            <option value="large">Large (30-50 bags)</option>
-                            <option value="xlarge">Extra Large (50+ bags)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Business Hours</label>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <input type="time" id="openTime" value="09:00">
-                            </div>
-                            <div class="form-group">
-                                <input type="time" id="closeTime" value="18:00">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Weekend Hours (Optional)</label>
-                        <input type="text" id="weekendHours" placeholder="e.g., Saturday 10am-4pm, Sunday Closed">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Additional Information</label>
-                        <textarea id="additionalInfo" rows="3" placeholder="Tell us more about your space..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="checkbox-group">
-                            <label>
-                                <input type="checkbox" required> I agree to the <a href="#">Terms of Service</a>
-                            </label>
-                            <label>
-                                <input type="checkbox" required> I confirm my space is secure
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">
-                        Submit Application
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Testimonials -->
-    <section class="testimonial-section">
-        <div class="container">
-            <h2>What Our Partners Say</h2>
-            <div class="testimonial-grid">
-                <div class="testimonial-card">
-                    <i class="fas fa-quote-left"></i>
-                    <p>"Since joining Luggage Storage, I've earned an extra $2,000 per month from my hotel lobby. The process is seamless and support is excellent."</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">MC</div>
-                        <div>
-                            <strong>Maria Chen</strong>
-                            <p>Hotel Owner, New York</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="testimonial-card">
-                    <i class="fas fa-quote-left"></i>
-                    <p>"My café now has a new revenue stream with zero effort. Travelers love the convenience, and I love the extra income!"</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">JR</div>
-                        <div>
-                            <strong>John Roberts</strong>
-                            <p>Café Owner, London</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Partner FAQ -->
-    <section class="faq-partner">
-        <div class="container">
-            <h2>Frequently Asked Questions</h2>
-            <div class="faq-grid" style="max-width: 800px; margin: 40px auto;">
-                <div class="faq-item">
-                    <div class="faq-question" onclick="togglePartnerFAQ(this)">
-                        <h4>How much can I earn?</h4>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Earnings vary based on location and space. Our partners typically earn $500-$3,000 per month. You set your own prices!</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="togglePartnerFAQ(this)">
-                        <h4>Is my business insured?</h4>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes! We provide $10,000 protection for every bag stored, covering both your business and the customer's belongings.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="togglePartnerFAQ(this)">
-                        <h4>How do I get paid?</h4>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Payments are processed automatically and deposited directly to your bank account every week. You keep 80% of the booking fee.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="togglePartnerFAQ(this)">
-                        <h4>What requirements do I need?</h4>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>A clean, secure space, regular business hours, and willingness to help travelers. No special equipment needed!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Footer (same as before) -->
-    
-    <script>
-        function submitPartnerApplication(event) {
-            event.preventDefault();
-            
-            // Collect form data
-            const formData = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                businessName: document.getElementById('businessName').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postalCode: document.getElementById('postalCode').value,
-                businessType: document.getElementById('businessType').value,
-                storageSpace: document.getElementById('storageSpace').value,
-                openTime: document.getElementById('openTime').value,
-                closeTime: document.getElementById('closeTime').value,
-                weekendHours: document.getElementById('weekendHours').value,
-                additionalInfo: document.getElementById('additionalInfo').value
+                if (error.code === 'auth/email-already-in-use') {
+                    showNotification('This email is already registered. Please try logging in.', 'error');
+                } else {
+                    showNotification(error.message, 'error');
+                }
+
+                // Reset button
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+
+        function showNotification(message, type) {
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#3b82f6',
+                warning: '#f59e0b'
             };
-            
-            // Show success message
-            alert('Thank you for applying! We will review your application and contact you within 24 hours.');
-            
-            // Store in localStorage (temporary)
-            localStorage.setItem('partnerApplication', JSON.stringify(formData));
-            
-            // Clear form
-            event.target.reset();
+
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.background = colors[type];
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
         }
-        
-        function togglePartnerFAQ(element) {
-            const item = element.parentElement;
-            item.classList.toggle('active');
-        }
+
+        // Add CSS for user menu (if not already present)
+        const style = document.createElement('style');
+        style.textContent = `
+            .user-menu-container {
+                position: relative;
+                margin-left: 10px;
+            }
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            .user-dropdown {
+                position: absolute;
+                top: 50px;
+                right: 0;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                min-width: 250px;
+                display: none;
+                z-index: 1000;
+                overflow: hidden;
+            }
+            .user-dropdown.show {
+                display: block;
+            }
+            .dropdown-header {
+                padding: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+            }
+            .dropdown-menu {
+                list-style: none;
+                padding: 10px 0;
+            }
+            .dropdown-menu li {
+                padding: 0;
+            }
+            .dropdown-menu a {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 20px;
+                color: #1e293b;
+                text-decoration: none;
+            }
+            .dropdown-menu a:hover {
+                background: #f0f9ff;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

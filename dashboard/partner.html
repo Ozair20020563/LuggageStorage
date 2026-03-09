@@ -1,165 +1,992 @@
-<!-- dashboard/partner.html - Key features -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-suitcase"></i></div>
-        <div class="stat-number" id="todayBookings">0</div>
-        <div class="stat-label">Today's Bookings</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-        <div class="stat-number" id="todayEarnings">$0</div>
-        <div class="stat-label">Today's Earnings</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-calendar"></i></div>
-        <div class="stat-number" id="upcomingBookings">0</div>
-        <div class="stat-label">Upcoming</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-        <div class="stat-number" id="monthlyEarnings">$0</div>
-        <div class="stat-label">This Month</div>
-    </div>
-</div>
-
-<!-- Today's schedule -->
-<div class="schedule-card">
-    <h3>📅 Today's Schedule</h3>
-    <div id="todaysSchedule"></div>
-</div>
-
-<!-- Account Settings Section for Partners -->
-<div class="settings-section" style="margin-top: 50px;">
-    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-cog"></i> Account Settings
-    </h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Dashboard - Luggage Storage</title>
     
-    <div class="settings-card" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
-        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-            <div style="flex: 1;">
-                <h3 style="margin-bottom: 10px; color: #1e293b;">Delete Partner Account</h3>
-                <p style="color: #64748b; margin-bottom: 15px;">
-                    Deleting your partner account will remove all your store information, booking history, and earnings data.
-                </p>
-                <div style="background: #fef2f2; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                    <p style="color: #ef4444; font-size: 14px;">
-                        <i class="fas fa-exclamation-triangle"></i> 
-                        <strong>Important:</strong> This will cancel all upcoming bookings at your store. Customers will be notified.
-                    </p>
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Your Firebase config -->
+    <script src="../js/firebase-config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            animation: gradientBG 15s ease infinite;
+            background-size: 300% 300%;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .store-badge {
+            background: #10b981;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Dashboard Container */
+        .dashboard {
+            padding: 100px 30px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-card h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+
+        .welcome-card .store-name {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .welcome-card .store-address {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Today's Schedule */
+        .schedule-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .schedule-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1e293b;
+        }
+
+        .schedule-title i {
+            color: #667eea;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .booking-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #10b981;
+            transition: all 0.3s;
+        }
+
+        .booking-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .booking-time {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .booking-customer {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .booking-details {
+            display: flex;
+            gap: 15px;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .booking-code {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 16px;
+            color: #667eea;
+            border: 1px dashed #667eea;
+            display: inline-block;
+        }
+
+        .booking-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-complete {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Bookings Table */
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin: 30px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        tbody tr:hover {
+            background: #f0f9ff;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-completed {
+            background: #94a3b8;
+            color: white;
+        }
+
+        .status-cancelled {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-close {
+            flex: 1;
+            padding: 12px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-confirm {
+            flex: 1;
+            padding: 12px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-label {
+            width: 120px;
+            color: #64748b;
+        }
+
+        .detail-value {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .qr-code-small {
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: #cbd5e0;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 90px 20px 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-card h1 {
+                font-size: 24px;
+            }
+            
+            .store-badge {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/LuggageStorage/" class="logo">
+                <i class="fas fa-suitcase"></i>
+                <span>Luggage Storage</span>
+            </a>
+            
+            <div class="user-menu">
+                <span class="store-badge" id="storeName">Store Name</span>
+                <button onclick="logout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <h1>Welcome back, <span id="partnerName">Partner</span>!</h1>
+            <div class="store-name" id="storeDisplayName">Your Store</div>
+            <div class="store-address" id="storeDisplayAddress">Store Address</div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-number" id="todayBookings">0</div>
+                <div class="stat-label">Today's Bookings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                <div class="stat-number" id="weeklyBookings">0</div>
+                <div class="stat-label">This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-suitcase"></i></div>
+                <div class="stat-number" id="totalBags">0</div>
+                <div class="stat-label">Total Bags Stored</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-number" id="totalEarnings">$0</div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+        </div>
+
+        <!-- Today's Schedule -->
+        <div class="schedule-card">
+            <h3 class="schedule-title"><i class="fas fa-calendar-day"></i> Today's Schedule</h3>
+            <div class="schedule-grid" id="todaySchedule">
+                <!-- Today's bookings will be loaded here -->
+                <div class="empty-state">
+                    <i class="fas fa-calendar-check"></i>
+                    <p>No bookings scheduled for today</p>
                 </div>
             </div>
         </div>
-        
-        <button onclick="showPartnerDeleteConfirmation()" class="btn-delete" style="background: #ef4444; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; cursor: pointer;">
-            <i class="fas fa-trash-alt"></i> Delete Partner Account
-        </button>
-    </div>
-</div>
 
-<!-- Delete Confirmation Modal for Partner -->
-<div id="partnerDeleteModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 450px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
-            <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
-            <h2 style="color: white;">Delete Partner Account?</h2>
-            <p style="color: white; opacity: 0.9;">This action cannot be undone</p>
-        </div>
-        
-        <div class="modal-body" style="padding: 30px;">
-            <p style="margin-bottom: 20px; color: #1e293b;">Please confirm by entering your password:</p>
-            
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
-                <input type="password" id="partnerDeletePassword" class="form-control" placeholder="Enter your password" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;">
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button onclick="deletePartnerAccount()" class="btn-delete" style="flex: 1; background: #ef4444; color: white; border: none; padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer;">
-                    Yes, Delete My Account
-                </button>
-                <button onclick="closePartnerDeleteModal()" class="btn-cancel" style="flex: 1; background: #e2e8f0; color: #1e293b; border: none; padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer;">
-                    Cancel
-                </button>
-            </div>
+        <!-- All Bookings -->
+        <h2 class="section-title"><i class="fas fa-list"></i> All Bookings</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Drop-off</th>
+                        <th>Pick-up</th>
+                        <th>Bags</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Access Code</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>Loading bookings...</p>
+                            <div class="spinner" style="width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto;"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
 
-<!-- Reuse styles from customer modal (scoped here for partner) -->
-<style>
-    #partnerDeleteModal.modal-overlay { z-index: 2100; }
-</style>
+    <!-- Booking Detail Modal -->
+    <div class="modal-overlay" id="bookingModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-receipt"></i> Booking Details</h2>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="closeModal()">Close</button>
+                <button class="btn-confirm" id="completeBtn" onclick="completeBooking()">Mark as Completed</button>
+            </div>
+        </div>
+    </div>
 
-<!-- JavaScript for Partner Account Deletion (namespaced) -->
-<script>
-    function showPartnerDeleteConfirmation() {
-        document.getElementById('partnerDeleteModal').style.display = 'flex';
-    }
+    <script>
+        let currentUser = null;
+        let currentStoreId = null;
+        let currentBookingId = null;
 
-    function closePartnerDeleteModal() {
-        document.getElementById('partnerDeleteModal').style.display = 'none';
-        document.getElementById('partnerDeletePassword').value = '';
-    }
+        // Check authentication
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                checkPartnerStatus(user);
+            } else {
+                window.location.href = '/LuggageStorage/login.html';
+            }
+        });
 
-    async function deletePartnerAccount() {
-        const password = document.getElementById('partnerDeletePassword').value;
-        if (!password) {
-            showNotification('Please enter your password', 'error');
-            return;
+        async function checkPartnerStatus(user) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    window.location.href = '/LuggageStorage/';
+                    return;
+                }
+
+                const userData = userDoc.data();
+                
+                // Check if approved partner
+                if (userData.role === 'partner') {
+                    // Get partner/store details
+                    await loadPartnerData(user.uid);
+                } else if (userData.role === 'pending_partner') {
+                    // Show pending approval message
+                    showPendingApproval();
+                } else {
+                    // Not a partner
+                    window.location.href = '/LuggageStorage/';
+                }
+            } catch (error) {
+                console.error('Error checking partner status:', error);
+            }
         }
 
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            showNotification('You must be logged in', 'error');
-            return;
+        async function loadPartnerData(userId) {
+            try {
+                // Get partner application to get store details
+                const applicationsSnapshot = await db.collection('partnerApplications')
+                    .where('userId', '==', userId)
+                    .where('status', '==', 'approved')
+                    .limit(1)
+                    .get();
+
+                if (applicationsSnapshot.empty) {
+                    showNotification('Store details not found', 'error');
+                    return;
+                }
+
+                const application = applicationsSnapshot.docs[0].data();
+                currentStoreId = applicationsSnapshot.docs[0].id;
+
+                // Update UI with store details
+                document.getElementById('partnerName').textContent = application.applicantName.split(' ')[0];
+                document.getElementById('storeDisplayName').textContent = application.storeName;
+                document.getElementById('storeDisplayAddress').textContent = application.storeAddress;
+                document.getElementById('storeName').textContent = application.storeName;
+
+                // Load bookings for this store
+                await loadPartnerBookings(application.storeName, application.storeAddress);
+                
+            } catch (error) {
+                console.error('Error loading partner data:', error);
+            }
         }
 
-        const deleteBtn = document.querySelector('#partnerDeleteModal .btn-delete');
-        const originalText = deleteBtn.innerHTML;
-        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-        deleteBtn.disabled = true;
+        async function loadPartnerBookings(storeName, storeAddress) {
+            try {
+                // Query bookings for this store
+                // You can add a store field to bookings or use address
+                const bookingsSnapshot = await db.collection('bookings')
+                    .where('storeLocation', '==', 'Sydney CBD') // Adjust based on your data structure
+                    .orderBy('createdAt', 'desc')
+                    .get();
 
-        try {
-            // Re-authenticate
-            const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-            await user.reauthenticateWithCredential(credential);
+                const allBookings = [];
+                bookingsSnapshot.forEach(doc => {
+                    allBookings.push({ id: doc.id, ...doc.data() });
+                });
 
-            // Delete partner user doc
-            await db.collection('users').doc(user.uid).delete();
+                // Update stats
+                updatePartnerStats(allBookings);
 
-            // Delete stores owned by partner and their bookings
-            const storesSnap = await db.collection('stores').where('ownerId', '==', user.uid).get();
-            const storeIds = [];
-            const batch = db.batch();
+                // Update today's schedule
+                updateTodaySchedule(allBookings);
 
-            storesSnap.forEach(snap => {
-                storeIds.push(snap.id);
-                batch.delete(snap.ref);
+                // Update table
+                renderBookingsTable(allBookings);
+
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                document.getElementById('bookingsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Error loading bookings: ${error.message}</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function updatePartnerStats(bookings) {
+            const today = new Date().toISOString().split('T')[0];
+            const thisWeek = new Date();
+            const weekAgo = new Date(thisWeek.setDate(thisWeek.getDate() - 7));
+
+            let todayCount = 0;
+            let weekCount = 0;
+            let totalBags = 0;
+            let totalEarnings = 0;
+
+            bookings.forEach(booking => {
+                const dropoffDate = booking.dropoffDate || booking.dropoff;
+                
+                if (dropoffDate === today) {
+                    todayCount++;
+                }
+
+                if (new Date(dropoffDate) >= weekAgo) {
+                    weekCount++;
+                }
+
+                const bags = parseInt(booking.numberOfBags || booking.bags || 0);
+                totalBags += bags;
+
+                const amount = parseFloat((booking.totalValue || booking.total || '0').toString().replace('$', ''));
+                totalEarnings += amount;
             });
 
-            // Delete bookings for these stores
-            if (storeIds.length) {
-                const bookingsSnap = await db.collection('bookings').where('storeId', 'in', storeIds).get();
-                bookingsSnap.forEach(b => batch.delete(b.ref));
+            document.getElementById('todayBookings').textContent = todayCount;
+            document.getElementById('weeklyBookings').textContent = weekCount;
+            document.getElementById('totalBags').textContent = totalBags;
+            document.getElementById('totalEarnings').textContent = '$' + totalEarnings.toFixed(2);
+        }
+
+        function updateTodaySchedule(bookings) {
+            const today = new Date().toISOString().split('T')[0];
+            const todayBookings = bookings.filter(b => 
+                (b.dropoffDate || b.dropoff) === today
+            );
+
+            const scheduleGrid = document.getElementById('todaySchedule');
+
+            if (todayBookings.length === 0) {
+                scheduleGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-check"></i>
+                        <p>No bookings scheduled for today</p>
+                    </div>
+                `;
+                return;
             }
 
-            // Also delete bookings where partnerId == user.uid
-            const partnerBookings = await db.collection('bookings').where('partnerId', '==', user.uid).get();
-            partnerBookings.forEach(b => batch.delete(b.ref));
+            let html = '';
+            todayBookings.sort((a, b) => {
+                const timeA = a.dropoffTime || '00:00';
+                const timeB = b.dropoffTime || '00:00';
+                return timeA.localeCompare(timeB);
+            });
 
-            await batch.commit();
+            todayBookings.forEach(booking => {
+                const customerName = booking.customerName || booking.name || 'Customer';
+                const dropoffTime = booking.dropoffTime || '00:00';
+                const bags = booking.numberOfBags || booking.bags || 0;
+                const bagSize = booking.bagSize || 'Medium';
+                const accessCode = booking.accessCode || 'N/A';
 
-            // Finally delete user account
-            await user.delete();
+                html += `
+                    <div class="booking-card">
+                        <div class="booking-time">🕐 Drop-off: ${dropoffTime}</div>
+                        <div class="booking-customer">👤 ${customerName}</div>
+                        <div class="booking-details">
+                            <span><i class="fas fa-suitcase"></i> ${bags} (${bagSize})</span>
+                        </div>
+                        <div class="booking-code">🔑 ${accessCode}</div>
+                        <div class="booking-actions">
+                            <button class="action-btn btn-view" onclick="viewBookingDetails('${booking.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="action-btn btn-complete" onclick="completeBooking('${booking.id}')">
+                                <i class="fas fa-check"></i> Complete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
 
-            showNotification('Partner account and store data deleted', 'success');
-            setTimeout(() => window.location.href = '/LuggageStorage/', 1500);
-        } catch (error) {
-            console.error('Partner delete error:', error);
-            if (error.code === 'auth/wrong-password') showNotification('Incorrect password', 'error');
-            else showNotification(error.message || 'Failed to delete partner account', 'error');
-            deleteBtn.innerHTML = originalText;
-            deleteBtn.disabled = false;
+            scheduleGrid.innerHTML = html;
         }
-    }
-</script>
+
+        function renderBookingsTable(bookings) {
+            const tbody = document.getElementById('bookingsTableBody');
+
+            if (bookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No bookings found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            bookings.forEach(booking => {
+                const bookingId = booking.bookingId || 'N/A';
+                const customerName = booking.customerName || booking.name || 'N/A';
+                const dropoff = booking.dropoffDate || booking.dropoff || 'N/A';
+                const pickup = booking.pickupDate || booking.pickup || 'N/A';
+                const bags = booking.numberOfBags || booking.bags || 0;
+                const total = booking.totalDisplay || booking.total || '$0';
+                const status = booking.status || 'active';
+                const accessCode = booking.accessCode || 'N/A';
+
+                html += `
+                    <tr onclick="viewBookingDetails('${booking.id}')">
+                        <td><strong>${bookingId}</strong></td>
+                        <td>${customerName}</td>
+                        <td>${dropoff}</td>
+                        <td>${pickup}</td>
+                        <td>${bags}</td>
+                        <td>${total}</td>
+                        <td><span class="status-badge status-${status}">${status}</span></td>
+                        <td><code>${accessCode}</code></td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function showPendingApproval() {
+            const dashboard = document.querySelector('.dashboard');
+            dashboard.innerHTML = `
+                <div class="welcome-card" style="text-align: center;">
+                    <i class="fas fa-clock" style="font-size: 60px; color: #f59e0b; margin-bottom: 20px;"></i>
+                    <h1>Application Pending Approval</h1>
+                    <p style="margin: 20px 0; color: #64748b;">Thank you for applying to become a partner. Your application is currently being reviewed by our team.</p>
+                    <p style="color: #667eea; font-weight: 600;">We will notify you via email once your application is approved. This usually takes 24-48 hours.</p>
+                    <button onclick="logout()" class="btn-primary" style="margin-top: 30px; padding: 12px 30px;">Return to Home</button>
+                </div>
+            `;
+        }
+
+        async function viewBookingDetails(bookingId) {
+            const doc = await db.collection('bookings').doc(bookingId).get();
+            if (!doc.exists) return;
+
+            const booking = doc.data();
+            currentBookingId = bookingId;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    ${booking.qrCode ? `<img src="${booking.qrCode}" style="width: 150px; height: 150px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">` : ''}
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Booking ID:</span>
+                    <span class="detail-value">${booking.bookingId || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Customer:</span>
+                    <span class="detail-value">${booking.customerName || booking.name || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${booking.customerEmail || booking.email || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">${booking.customerPhone || booking.phone || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Drop-off:</span>
+                    <span class="detail-value">${booking.dropoffDate || booking.dropoff || 'N/A'} ${booking.dropoffTime || ''}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Pick-up:</span>
+                    <span class="detail-value">${booking.pickupDate || booking.pickup || 'N/A'} ${booking.pickupTime || ''}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Bags:</span>
+                    <span class="detail-value">${booking.numberOfBags || booking.bags || 0} (${booking.bagSize || 'Medium'})</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Access Code:</span>
+                    <span class="detail-value" style="font-family: monospace; font-size: 18px; color: #667eea;">${booking.accessCode || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total:</span>
+                    <span class="detail-value">${booking.totalDisplay || booking.total || '$0'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Payment:</span>
+                    <span class="detail-value">${booking.paymentMethod === 'store' ? 'Pay in store' : 'Online'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value"><span class="status-badge status-${booking.status || 'active'}">${booking.status || 'active'}</span></span>
+                </div>
+            `;
+
+            document.getElementById('bookingModal').style.display = 'flex';
+        }
+
+        async function completeBooking() {
+            if (!currentBookingId) return;
+
+            try {
+                await db.collection('bookings').doc(currentBookingId).update({
+                    status: 'completed'
+                });
+
+                showNotification('Booking marked as completed', 'success');
+                closeModal();
+                
+                // Reload data
+                if (currentUser) {
+                    await loadPartnerData(currentUser.uid);
+                }
+            } catch (error) {
+                console.error('Error completing booking:', error);
+                showNotification('Error updating booking', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+            currentBookingId = null;
+        }
+
+        function logout() {
+            firebase.auth().signOut()
+                .then(() => {
+                    window.location.href = '/LuggageStorage/';
+                })
+                .catch(error => {
+                    showNotification(error.message, 'error');
+                });
+        }
+
+        function showNotification(message, type) {
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#3b82f6'
+            };
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                z-index: 9999;
+                animation: slideIn 0.3s;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
